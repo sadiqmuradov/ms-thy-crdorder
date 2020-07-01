@@ -1,0 +1,75 @@
+buildscript {
+    ext {
+        springBootVersion = '2.1.4.RELEASE'
+    }
+    repositories {
+        mavenLocal()
+        maven { url 'https://nexus3/repository/maven-group' }
+        mavenCentral()
+        maven { url "https://repo.spring.io/snapshot" }
+        maven { url "https://repo.spring.io/milestone" }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+plugins {
+    id "org.sonarqube" version "2.6.2"
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+group 'az.pashabank.apl'
+version '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+    mavenLocal()
+    maven { url 'https://nexus3/repository/maven-group' }
+    mavenCentral()
+    maven { url "https://repo.spring.io/snapshot" }
+    maven { url "https://repo.spring.io/milestone" }
+}
+
+ext {
+    springCloudVersion = 'Greenwich.SR1'
+}
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile('org.springframework.boot:spring-boot-starter-data-rest')
+    compile('org.springframework.boot:spring-boot-starter-jdbc')
+    compile('org.springframework.boot:spring-boot-starter-webflux')
+//    compile("org.springframework.cloud:spring-cloud-starter-config")
+    compile('io.springfox:springfox-swagger-ui:2.8.0')
+    compile('io.springfox:springfox-swagger2:2.8.0')
+    compile('org.springframework.cloud:spring-cloud-starter-openfeign')
+    compile('com.oracle.database.jdbc:ojdbc8:19.3.0.0')
+//    compile('com.oracle:ojdbc8:18.3.0.0')
+    compile('org.json:json:20180130')
+    compile('net.logstash.logback:logstash-logback-encoder:5.2') {
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+    }
+    compile('org.springframework.boot:spring-boot-starter-thymeleaf')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile('org.springframework.boot:spring-boot-starter-data-redis') 
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+configurations {
+    bootJar.archiveName = 'ms-thy-crdorder.jar'
+}
+
+jar {
+    enabled = true
+}

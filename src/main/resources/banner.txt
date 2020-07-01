@@ -1,0 +1,9 @@
+${Ansi.DEFAULT}        _   _   _____    ____
+${Ansi.DEFAULT}     U |"|u| | |" ___|U /"___|
+${Ansi.DEFAULT}      \| |\| |U| |_  u\| | u
+${Ansi.DEFAULT}       | |_| |\|  _|/  | |/__
+${Ansi.DEFAULT}      <<\___/  |_|      \____|
+${Ansi.DEFAULT}     (__) )(   )(\\,-  _// \\
+${Ansi.DEFAULT}         (__) (__)(_/ (__)(__)  by DreamTeam PB
+
+${Ansi.GREEN} :: Spring Boot${spring-boot.formatted-version} :: ${Ansi.DEFAULT}

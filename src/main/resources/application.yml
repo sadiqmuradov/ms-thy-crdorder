@@ -1,0 +1,237 @@
+server:
+  port: 8021
+  servlet:
+    context-path: /ms-thy-crdorder
+---
+spring:
+  profiles: prod
+  datasource:
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 20
+    url: jdbc:oracle:thin:@//192.168.10.27:1521/thycardorder
+    username: thycardorderusr
+    password: k#1SjzD05*44tPD3mp5
+server:
+  ssl:
+    key-store: /ufc_pshb_local.pfx
+    key-store-password: UFC1234@
+    keyAlias: ufc
+    keyStoreType: PKCS12
+thy:
+  rest:
+    endpoint: https://k8s.pshb.local:30443/ms-thy
+ecomm:
+  rest:
+    endpoint: https://k8s.pshb.local:30443/ms-ecomm
+  clientId: 1
+  payment:
+    description: PashaBank Miles & Smiles Card order
+schedule:
+  fixedDelay:
+    in:
+      milliseconds:
+        flex: 120000
+        otrs: 300000
+request:
+  body:
+    country_list: '{"getCountryListMultiLangDetail": {},"requestHeader":{}}'
+    city_list: '{"getAddressCityListDetail": {"country": "-countrycode-"},"requestHeader":{}}'
+url:
+  get_country_list: https://k8s.pshb.local:30443/ms-thy/getCountryListMultiLang
+  get_city_list: https://k8s.pshb.local:30443/ms-thy/getAddressCityList
+sms:
+  endpoint:
+    url: http://192.168.10.57:13002/cgi-bin/sendsms?username=ag&password=ag&to=%s&text=%s
+ldap:
+  login:
+    url: https://k8s.pshb.local:30443/ldap-service/check-login
+upload:
+  folder:
+    thy_applications: /data/ms-thy-crdorder/uploads
+mail:
+  service:
+    url: http://192.168.10.84:8080/MailServiceRs/send
+    multipart:
+      url: http://192.168.10.84:8080/MailServiceRs/send/multipart
+    username: pasha_life_app
+    password: pA5haL!f3
+    from: no-reply@pashabank.az
+    message_template:
+      payment: '<html> <head> <meta charset="UTF-8"> <style type="text/css">.mail-logo{margin:10px 0}.conf-notice{color:gray;font-size:11px}body{font-family:arial}table td{line-height:25px;min-width:150px}.signature-block{font-size:13px!important;line-height:20px;width:800px}.payment-result{width:500px}</style> </head> <body> <p>Hörmətli Müştəri,</p> <p>Xahiş edirik Banka yaxınlaşan zaman özünüzlə Ş/V-nizi gətirməyi unutmayın. </p> <div class="payment-result"> <h4>PAŞA Bank ödəniş qəbzi</h4> <table> <tbody> <tr> <td>Xidmət:</td> <td>PaşaBank THY Miles & Smiles Kart Sifarişi</td> </tr> <tr> <td>Tranzaksiya nömrəsi:</td> <td>%s</td> </tr> <tr> <td>Məbləğ:</td> <td>%s %s</td> </tr> <tr> <td>Kart nömrəsi:</td> <td>%s</td> </tr> <tr> <td>Əməliyyat tarixi:</td> <td>%s</td> </tr> </tbody> </table> </div> <br /> <br /> <br /> <p>Dear Customer,</p> <p>While approaching bank, please do not forget to bring your ID.</p> <div class="payment-result"> <h4>PASHA Bank payment receipt.</h4> <table> <tbody> <tr> <td>Service:</td> <td>PashaBank TAL Miles & Smiles Card Order</td> </tr> <tr> <td>Transaction number:</td> <td>%s</td> </tr> <tr> <td>Amount:</td> <td>%s %s</td> </tr> <tr> <td>Card number:</td> <td>%s</td> </tr> <tr> <td>Operation date:</td> <td>%s</td> </tr> </tbody> </table> </div> <br /> <br /> <br /> <div class="signature-block"> Best Regards, <br /> <img src="https://payments.pashabank.az/payment3d/assets/images/logo_min.png" class="mail-logo" /> <br /> Head Office, 13, Yusif Mammadaliyev Street, Baku, AZ1005, Azerbaijan <br /> tel.: +994.12.496.50.00 | fax: +994.12.596.50.10 <br /> email: <a href="mailto:customer.care@pashabank.az">customer.care@pashabank.az</a> | <a href="http://www.pashabank.az">www.pashabank.az</a> <br /><br/> <b>Please do not hesitate to comment to <a href="mailto:customer.care@pashabank.az">customer.care@pashabank.az</a> on service quality. Thank you!</b> <br /> <br /> <div class="conf-notice"> PRIVILEGE AND CONFIDENTIALITY NOTICE <br /> This communication contains information issued by PASHA Bank OJSC. This e-mail message and all attachments transmitted with it are intended solely for the use of the addressee and may contain legally privileged and confidential information. If the reader of this message is not the intended recipient, or an employee or agent responsible for delivering this message to the intended recipient, the reader is hereby notified that any dissemination, distribution, copying, or other use of this message or its attachments is strictly prohibited. If you have received this message in error, please notify the sender immediately by replying to this message and please delete it from your computer. <br /> Within the bounds of law PASHA Bank OJSC may monitor electronic transmissions through its internal and external networks to ensure compliance with internal policies and for legitimate business purposes. </div> </div> </body></html>'
+      thy_otrs_request: 'PASHA THY MILES & SMILES CARD ORDER REQUEST%n%n%nResidency: %s%nNationality: %s%nClient: %s %s %s%nGender: %s%nBirth Date: %s%nRegistration City: %s%nRegistration Address: %s%nDomicile City: %s%nDomicile Address: %s%nMobile Number: %s%nEmail: %s%nSecret Code: %s%nWorkplace: %s%nPosition: %s%nUrgent: %s%nTK Number: %s%nPassport Name: %s%nPassport Surname: %s%nCurrency: %s%nCard Product: %s%nPeriod: %s year%nBranch to get the card: %s%nCard Price: %s %s%nFlex Payment Status: %s%nBank Cards::Card Operations::Miles and Smiles Online Order%n%nSELF-CERTIFICATION FORM ANSWERS%n%n'
+swagger:
+  host: k8s.pshb.local:30443
+---
+spring:
+  profiles: uat
+  datasource:
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 20
+    url: jdbc:oracle:thin:@//192.168.110.61:1521/thycardorder
+    username: thycardorderusr
+    password: k#1SjzD05*44tPD3mp5
+server:
+  ssl:
+    key-store: /ufctest_pshb_local.pfx
+    key-store-password: UfcT3st123
+    keyAlias: ufctest
+    keyStoreType: PKCS12
+thy:
+  rest:
+    endpoint: https://ufctest.pshb.local:30443/ms-thy
+ecomm:
+  rest:
+    endpoint: https://ufctest.pshb.local:30443/ms-ecomm
+  clientId: 1
+  payment:
+    description: PashaBank Miles & Smiles Card order
+schedule:
+  fixedDelay:
+    in:
+      milliseconds:
+        flex: 120000
+        otrs: 180000
+request:
+  body:
+    country_list: '{"getCountryListMultiLangDetail": {},"requestHeader":{}}'
+    city_list: '{"getAddressCityListDetail": {"country": "-countrycode-"},"requestHeader":{}}'
+url:
+  get_country_list: https://ufctest.pshb.local:30443/ms-thy/getCountryListMultiLang
+  get_city_list: https://ufctest.pshb.local:30443/ms-thy/getAddressCityList
+sms:
+  endpoint:
+    url: http://192.168.110.57:13002/cgi-bin/sendsms?username=ag&password=ag&to=%s&text=%s
+ldap:
+  login:
+    url: https://ufctest.pshb.local:30443/ldap-service/check-login
+upload:
+  folder:
+    thy_applications: /data/ms-thy-crdorder/uploads
+mail:
+  service:
+    url: http://192.168.110.101:8080/MailServiceRs/send
+    multipart:
+      url: http://192.168.110.101:8084/MailServiceRs/send/multipart
+    username: pasha_life_app
+    password: pA5haL!f3
+    from: no-reply@pashabank.az
+    message_template:
+      payment:
+        begin: '<html> <head> <meta charset="UTF-8"> <style type="text/css">.mail-logo{margin:10px 0}.conf-notice{color:gray;font-size:11px}body{font-family:arial}table td{line-height:25px;min-width:150px}.signature-block{font-size:13px!important;line-height:20px;width:800px}.payment-result{width:500px}</style> </head> <body> <p>Hörmətli Müştəri,</p> <p>Xahiş edirik Banka yaxınlaşan zaman özünüzlə Ş/V-nizi gətirməyi unutmayın. </p> <div class="payment-result"> <h4>PAŞA Bank ödəniş qəbzi</h4> <table> <tbody> <tr> <td>Xidmət:</td> <td>PaşaBank THY Miles & Smiles Kart Sifarişi</td> </tr> <tr> <td>Tranzaksiya nömrəsi:</td> <td>%s</td> </tr> <tr> <td>Ödəniş növü:</td> <td>%s</td> </tr>'
+        coupon_serial_az: '<tr> <td>Kupon seriya nömrəsi:</td> <td>%s</td> </tr>'
+        amount_az: '<tr> <td>Məbləğ:</td> <td>%s %s</td> </tr>'
+        card_az: '<tr> <td>Kart nömrəsi:</td> <td>%s</td> </tr>'
+        middle: '<tr> <td>Əməliyyat tarixi:</td> <td>%s</td> </tr> </tbody> </table> </div> <br /> <br /> <br /> <p>Dear Customer,</p> <p>While approaching bank, please do not forget to bring your ID.</p> <div class="payment-result"> <h4>PASHA Bank payment receipt.</h4> <table> <tbody> <tr> <td>Service:</td> <td>PashaBank TAL Miles & Smiles Card Order</td> </tr> <tr> <td>Transaction number:</td> <td>%s</td> </tr> <tr> <td>Payment method:</td> <td>%s</td> </tr>'
+        coupon_serial_en: '<tr> <td>Coupon serial number:</td> <td>%s</td> </tr>'
+        amount_en: '<tr> <td>Amount:</td> <td>%s %s</td> </tr>'
+        card_en: '<tr> <td>Card number:</td> <td>%s</td> </tr>'
+        end: '<tr> <td>Operation date:</td> <td>%s</td> </tr> </tbody> </table> </div> <br /> <br /> <br /> <div class="signature-block"> Best Regards, <br /> <img src="https://payments.pashabank.az/payment3d/assets/images/logo_min.png" class="mail-logo" /> <br /> Head Office, 13, Yusif Mammadaliyev Street, Baku, AZ1005, Azerbaijan <br /> tel.: +994.12.496.50.00 | fax: +994.12.596.50.10 <br /> email: <a href="mailto:customer.care@pashabank.az">customer.care@pashabank.az</a> | <a href="http://www.pashabank.az">www.pashabank.az</a> <br /><br/> <b>Please do not hesitate to comment to <a href="mailto:customer.care@pashabank.az">customer.care@pashabank.az</a> on service quality. Thank you!</b> <br /> <br /> <div class="conf-notice"> PRIVILEGE AND CONFIDENTIALITY NOTICE <br /> This communication contains information issued by PASHA Bank OJSC. This e-mail message and all attachments transmitted with it are intended solely for the use of the addressee and may contain legally privileged and confidential information. If the reader of this message is not the intended recipient, or an employee or agent responsible for delivering this message to the intended recipient, the reader is hereby notified that any dissemination, distribution, copying, or other use of this message or its attachments is strictly prohibited. If you have received this message in error, please notify the sender immediately by replying to this message and please delete it from your computer. <br /> Within the bounds of law PASHA Bank OJSC may monitor electronic transmissions through its internal and external networks to ensure compliance with internal policies and for legitimate business purposes. </div> </div> </body></html>'
+      thy_otrs_request: 'PASHA THY MILES & SMILES CARD ORDER REQUEST%n%n%nResidency: %s%nNationality: %s%nClient: %s %s %s%nGender: %s%nBirth Date: %s%nRegistration City: %s%nRegistration Address: %s%nDomicile City: %s%nDomicile Address: %s%nMobile Number: %s%nEmail: %s%nSecret Code: %s%nWorkplace: %s%nPosition: %s%nUrgent: %s%nTK Number: %s%nPassport Name: %s%nPassport Surname: %s%nCurrency: %s%nCard Product: %s%nPeriod: %s year%nBranch to get the card: %s%nPayment Method: %s%nCard Price: %s %s%nFlex Payment Status: %s%nBank Cards::Card Operations::Miles and Smiles Online Order%n%nSELF-CERTIFICATION FORM ANSWERS%n%n'
+swagger:
+  host: ufctest.pshb.local:30443
+logging:
+  level:
+    az:
+      pashabank:
+        apl:
+          ms:
+            thy:
+              proxy:
+                ECommServiceProxy: DEBUG
+                ThyServiceProxy: DEBUG
+---
+spring:
+  profiles: local
+  datasource:
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 20
+    url: jdbc:oracle:thin:@//localhost:1521/xe
+    username: sadiq
+    password: sadiq
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+      enable_lazy_load_no_trans: true
+thy:
+  rest:
+    endpoint: https://ufctest.pshb.local:30443/ms-thy
+ecomm:
+  rest:
+    endpoint: https://ufctest.pshb.local:30443/ms-ecomm
+  card:
+    clientId: 1
+    payment:
+      description: PashaBank Miles & Smiles Card Order
+  coupon:
+    clientId: 1
+    payment:
+      description: PashaBank Miles & Smiles Coupon Order
+ms-sms:
+  rest:
+    endpoint: https://ufctest.pshb.local:30443/ms-sms
+  channel: "PASHABANK"
+schedule:
+  fixedDelay:
+    in:
+      milliseconds:
+        flex: 120000
+        otrs: 180000
+request:
+  body:
+    country_list: '{"getCountryListMultiLangDetail": {},"requestHeader":{}}'
+    city_list: '{"getAddressCityListDetail": {"country": "-countrycode-"},"requestHeader":{}}'
+url:
+  get_country_list: https://ufctest.pshb.local:30443/ms-thy/getCountryListMultiLang
+  get_city_list: https://ufctest.pshb.local:30443/ms-thy/getAddressCityList
+sms:
+  endpoint:
+    url: http://192.168.110.57:13002/cgi-bin/sendsms?username=ag&password=ag&to=%s&text=%s
+ldap:
+  login:
+    url: https://ufctest.pshb.local:30443/ldap-service/check-login
+upload:
+  folder:
+    thy_applications: C:\\Development\\thy_card_order\\uploads
+mail:
+  service:
+    url: http://192.168.110.101:8080/MailServiceRs/send
+    multipart:
+      url: http://192.168.110.101:8080/MailServiceRs/send/multipart
+    username: pasha_life_app
+    password: pA5haL!f3
+    from: no-reply@pashabank.az
+    message_template:
+      payment:
+        amount_az: '<tr> <td>Məbləğ:</td> <td>%s %s</td> </tr>'
+        card_az: '<tr> <td>Kart nömrəsi:</td> <td>%s</td> </tr>'
+        amount_en: '<tr> <td>Amount:</td> <td>%s %s</td> </tr>'
+        card_en: '<tr> <td>Card number:</td> <td>%s</td> </tr>'
+        end1: '<tr> <td>Operation date:</td> <td>%s</td> </tr> <tr> <td>Order Code:</td> <td>%s</td> </tr> </tbody> </table>'
+        end2: '</div> <br /> <br /> <br /> <div class="signature-block"> Best Regards, <br /> <img src="https://payments.pashabank.az/payment3d/assets/images/logo_min.png" class="mail-logo" /> <br /> Head Office, 13, Yusif Mammadaliyev Street, Baku, AZ1005, Azerbaijan <br /> tel.: +994.12.496.50.00 | fax: +994.12.596.50.10 <br /> email: <a href="mailto:customer.care@pashabank.az">customer.care@pashabank.az</a> | <a href="http://www.pashabank.az">www.pashabank.az</a> <br /><br/> <b>Please do not hesitate to comment to <a href="mailto:customer.care@pashabank.az">customer.care@pashabank.az</a> on service quality. Thank you!</b> <br /> <br /> <div class="conf-notice"> PRIVILEGE AND CONFIDENTIALITY NOTICE <br /> This communication contains information issued by PASHA Bank OJSC. This e-mail message and all attachments transmitted with it are intended solely for the use of the addressee and may contain legally privileged and confidential information. If the reader of this message is not the intended recipient, or an employee or agent responsible for delivering this message to the intended recipient, the reader is hereby notified that any dissemination, distribution, copying, or other use of this message or its attachments is strictly prohibited. If you have received this message in error, please notify the sender immediately by replying to this message and please delete it from your computer. <br /> Within the bounds of law PASHA Bank OJSC may monitor electronic transmissions through its internal and external networks to ensure compliance with internal policies and for legitimate business purposes. </div> </div> </body></html>'
+        card:
+          begin: '<html> <head> <meta charset="UTF-8"> <style type="text/css">.mail-logo{margin:10px 0}.conf-notice{color:gray;font-size:11px}body{font-family:arial}table td{line-height:25px;min-width:150px}.signature-block{font-size:13px!important;line-height:20px;width:800px}.payment-result{width:500px}</style> </head> <body> <p>Hörmətli Müştəri,</p> <p>Xahiş edirik Banka yaxınlaşan zaman özünüzlə Ş/V-nizi gətirməyi unutmayın. </p> <div class="payment-result"> <h4>PAŞA Bank ödəniş qəbzi</h4> <table> <tbody> <tr> <td>Xidmət:</td> <td>PaşaBank THY Miles & Smiles Kart Sifarişi</td> </tr> <tr> <td>Tranzaksiya nömrəsi:</td> <td>%s</td> </tr> <tr> <td>Ödəniş növü:</td> <td>%s</td> </tr>'
+          coupon_serial_az: '<tr> <td>Kupon seriya nömrəsi:</td> <td>%s</td> </tr>'
+          middle: '<tr> <td>Əməliyyat tarixi:</td> <td>%s</td> </tr> </tbody> </table> </div> <br /> <br /> <br /> <p>Dear Customer,</p> <p>While approaching bank, please do not forget to bring your ID.</p> <div class="payment-result"> <h4>PASHA Bank payment receipt.</h4> <table> <tbody> <tr> <td>Service:</td> <td>PashaBank TAL Miles & Smiles Card Order</td> </tr> <tr> <td>Transaction number:</td> <td>%s</td> </tr> <tr> <td>Payment method:</td> <td>%s</td> </tr>'
+          coupon_serial_en: '<tr> <td>Coupon serial number:</td> <td>%s</td> </tr>'
+        coupon:
+          begin: '<html> <head> <meta charset="UTF-8"> <style type="text/css">.right{text-align:right}.mail-logo{margin:10px 0}.conf-notice{color:gray;font-size:11px}body{font-family:arial}table td{line-height:25px;min-width:150px}.signature-block{font-size:13px!important;line-height:20px;width:800px}.payment-result{width:500px}</style> </head> <body> <div class="payment-result"> <h4>PAŞA Bank ödəniş qəbzi</h4> <table> <tbody> <tr> <td>Xidmət:</td> <td>PaşaBank THY Miles & Smiles Kupon Sifarişi</td> </tr> <tr> <td>Tranzaksiya nömrəsi:</td> <td>%s</td> </tr>'
+          middle1: '<tr> <td>Əməliyyat tarixi:</td> <td>%s</td> </tr> <tr> <td>Sifariş Kodu:</td> <td>%s</td> </tr> </tbody> </table>'
+          middle2: '</div> <br /> <br /> <br /> <div class="payment-result"> <h4>PASHA Bank payment receipt.</h4> <table> <tbody> <tr> <td>Service:</td> <td>PashaBank THY Miles & Smiles Coupon Order</td> </tr> <tr> <td>Transaction number:</td> <td>%s</td> </tr>'
+      thy_otrs_request: 'PASHA THY MILES & SMILES CARD ORDER REQUEST%n%n%nResidency: %s%nNationality: %s%nClient: %s %s %s%nGender: %s%nBirth Date: %s%nRegistration City: %s%nRegistration Address: %s%nDomicile City: %s%nDomicile Address: %s%nMobile Number: %s%nEmail: %s%nSecret Code: %s%nWorkplace: %s%nPosition: %s%nUrgent: %s%nTK Number: %s%nPassport Name: %s%nPassport Surname: %s%nCurrency: %s%nCard Product: %s%nPeriod: %s year%nBranch to get the card: %s%nPayment Method: %s%nCard Price: %s %s%nFlex Payment Status: %s%nRoaming Number: %s%nBank Cards::Card Operations::Miles and Smiles Online Order%n%nSELF-CERTIFICATION FORM ANSWERS%n%n'
+      thy_informative: 'PASHA THY MILES & SMILES COUPON ORDER INFORMATION %n%n%nClient: %s %s %s%nMobile Number: %s%nEmail: %s%nCard Product: %s%nCard Price: %s %s%nFlex Payment Status: %s%nMiles and Smiles Online Order%n'
+swagger:
+  host: localhost:8021
+logging:
+  level:
+    az:
+      pashabank:
+        apl:
+          ms:
+            thy:
+              proxy:
+                ECommServiceProxy: DEBUG
+                ThyServiceProxy: DEBUG

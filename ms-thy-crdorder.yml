@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ms-thy-crdorder-deploy
+  labels:
+    app: ms-thy-crdorder
+    component: ms-thy-crdorder-deploy
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ms-thy-crdorder
+        component: ms-thy-crdorder
+        enabled: "true"
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      hostAliases:
+        - ip: "192.168.110.130"
+          hostnames:
+          - "ufctest.pshb.local"
+        - ip: "192.168.10.146"
+          hostnames:
+            - "ufc.pshb.local"
+            - "k8s.pshb.local"
+      containers:
+        - name: ms-thy-crdorder
+          image: 192.168.10.253:18443/repository/analoglab/ms-thy-crdorder:latest
+          securityContext:
+            privileged: true
+          imagePullPolicy: Always
+          ports:
+            - name: ms-thy-crdorder
+              containerPort: 8021
+          volumeMounts:
+            - name: gluster-vol-data
+              mountPath: /data
+              readOnly: false
+      volumes:
+        - name: gluster-vol-data
+          persistentVolumeClaim:
+            claimName: gluster-claim-data

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>THY Card Order</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <link th:href="@{/css/responsive.css}" rel="stylesheet">
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/index.js}"></script>
+</head>
+
+<body>
+<div id="loader"><img th:src="@{/images/loader.gif}"/></div>
+<div id="main-container" class="container">
+    <section class="registration-area">
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <div class="col-md-1"></div>
+                <div class="col-md-10">
+                    <div class="panel panel-smart padding-top-5">
+                        <a th:href="@{/logout}">
+                            <button class="btn btn-danger" style="position: absolute;right: 23px;   border-radius: 3px;">Çıxış</button>
+                        </a>
+                        <div class="panel-heading text-center height-200">
+                            <a style="cursor: pointer;" onClick="window.location.reload()"><img
+                                    class="img-logo margin-top-10 width-50prc"
+                                    th:src="@{/images/logo_az.png}"></a>
+                        </div>
+                        <div class="panel-body">
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade active in" role="tabpanel" id="insurance"
+                                     aria-labelledby="home-tab">
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-md-1"></div>
+                                            <div class="col-md-10" style="text-align:center">
+                                                <h5>TK nömrəsi olmayan mövcud müştəri</h5>
+                                            </div>
+                                            <div class="col-md-1"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Sizin TK Nömrəniz var?</label>
+                                        <div class="col-sm-8">
+                                            <div class="col-sm-4"><input type="radio" name="tkNo" value="1" checked/>
+                                                Bəli
+                                            </div>
+                                            <div class="col-sm-4"><input type="radio" name="tkNo" value="0"/> Xeyr</div>
+                                        </div>
+                                    </div>
+                                    <br/>
+                                    <div class="form-group" style="text-align: center"><h4 id="message"></h4></div>
+
+                                    <div id="tk_yes" style="display: none">
+
+                                        <form id="tk_no_form" method="post" role="form"
+                                              class="form-horizontal payment-form">
+                                            <div class="card-details-note">
+                                                * THY-da qeydiyyatdan keçmək üçün, aşağıdakı məlumatları doldurun
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="col-sm-6">
+                                                    <label>Ad (Xarici passport)</label>
+                                                    <input name="name" type="text" class="form-control required"
+                                                           value="">
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <label>Soyad (Xarici passport)</label>
+                                                    <input name="surname" type="text" class="form-control required"
+                                                           value="">
+                                                </div>
+                                            </div>
+
+
+                                            <div class="form-group">
+                                                <div class="col-sm-6">
+                                                    <label>Dil</label>
+                                                    <select name="corrspondanceLanguage" class="form-control required">
+                                                        <option value="0">Seçin</option>
+                                                        <option value="tr">Türk</option>
+                                                        <option value="ru">Rus</option>
+                                                        <option value="en">İngilis</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <label>Milliyət</label>
+                                                    <select name="nationality" id="nationality"
+                                                            class="form-control required">
+                                                        <option value="0">Seçin</option>
+                                                        <option th:each="country : ${countryList}"
+                                                                th:value="${country.code}"
+                                                                th:text="${country.name}"></option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="form-group">
+
+                                                <div class="col-sm-6">
+                                                    <label>Doğum tarixi</label>
+                                                    <input name="birthDate" type="date" class="form-control required"
+                                                           value="">
+                                                </div>
+
+                                                <div class="col-sm-6">
+                                                    <div class="col-sm-6">
+                                                        <br/><input type="radio" name="gender" value="F" checked/> Xanım
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <br/><input type="radio" name="gender" value="M"/> Cənab
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="form-group">
+                                                <div class="col-sm-6">
+                                                    <label>Ölkə</label>
+                                                    <select name="countryCode" id="country"
+                                                            class="form-control required">
+                                                        <option value="0">Seçin</option>
+                                                        <option th:each="country : ${countryList}"
+                                                                th:value="${country.code}"
+                                                                th:text="${country.name}"></option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <label>Şəhər</label>
+                                                    <select name="cityCode" id="city" class="form-control required">
+                                                        <option value="0">Seçin</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+
+                                                <div class="col-sm-12">
+                                                    <label>Ünvan</label>
+                                                    <input name="address" type="text" class="form-control required"
+                                                           value="">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+
+                                                <div class="col-sm-6">
+                                                    <label>E-mail</label>
+                                                    <input name="email" type="email" class="form-control required"
+                                                           value="">
+                                                </div>
+
+                                                <div class="col-sm-6">
+                                                    <label>Mobil nömrə</label>
+                                                    <input name="mobileNo" placeholder="+994 12 345 67 89" type="text"
+                                                           class="form-control required" value="">
+                                                </div>
+                                            </div>
+
+                                            <div class="row margin-top-50">
+                                                <div class="col-md-6 text-left"><a style="color: #337ab7"
+                                                                                   th:href="@{/users(page=1)}">Bütün
+                                                    müştərilər</a></div>
+                                                <div class="col-md-6 text-right">
+                                                    <button id="submit_tkno_form" type="submit"
+                                                            class="btn btn-green btn-tab-locate min-width-100">İrəli
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    <div id="tk_no">
+                                        <form role="form" class="form-horizontal payment-form">
+                                            <div class="form-group">
+                                                <div class="col-sm-6">
+                                                    <label>TK nömrə</label>
+                                                    <input id="checkTkNo" type="text" class="form-control required"
+                                                           value="">
+                                                </div>
+                                                <div class="col-sm-6"></div>
+                                            </div>
+                                            <div id="existingUserData" style="display: none">
+                                                <table class="table table-bordered">
+                                                    <tr>
+                                                        <td>Ad:</td>
+                                                        <td id="existingname"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Soyad:</td>
+                                                        <td id="existingsurname"></td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="col-md-6 text-left"><a style="color: #337ab7"
+                                                                                   th:href="@{/users(page=1)}">Bütün
+                                                    müştərilər</a></div>
+                                                <div class="col-md-6 text-right">
+                                                    <button id="check_tkno_form"
+                                                            class="btn btn-green btn-tab-locate min-width-100">İrəli
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+</body>
+</html>
