@@ -1,8 +1,16 @@
 package az.pashabank.apl.ms.thy.client;
 
 import az.pashabank.apl.ms.thy.constants.URL;
-import az.pashabank.apl.ms.thy.logger.UFCLogger;
-import az.pashabank.apl.ms.thy.model.thy.*;
+import az.pashabank.apl.ms.thy.logger.MainLogger;
+import az.pashabank.apl.ms.thy.model.thy.CheckTkRequest;
+import az.pashabank.apl.ms.thy.model.thy.CheckTkRestResponse;
+import az.pashabank.apl.ms.thy.model.thy.CheckTkReturn;
+import az.pashabank.apl.ms.thy.model.thy.MemberOperationsRequest;
+import az.pashabank.apl.ms.thy.model.thy.MemberOperationsResponse;
+import az.pashabank.apl.ms.thy.model.thy.MemberOperationsReturn;
+import az.pashabank.apl.ms.thy.model.thy.SecurityQuestionsRequest;
+import az.pashabank.apl.ms.thy.model.thy.SecurityQuestionsRestResponse;
+import az.pashabank.apl.ms.thy.model.thy.SecurityQuestionsReturn;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,7 +21,7 @@ import java.util.ArrayList;
 @Service
 public class ThyRestClient {
 
-    private static final UFCLogger LOGGER = UFCLogger.getLogger(ThyRestClient.class);
+    private static final MainLogger LOGGER = MainLogger.getLogger(ThyRestClient.class);
 
     @Value("${thy.rest.endpoint}")
     private String thyRestEndpoint;

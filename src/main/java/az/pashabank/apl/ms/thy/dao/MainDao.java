@@ -1,14 +1,47 @@
 package az.pashabank.apl.ms.thy.dao;
 
+import az.pashabank.apl.ms.thy.constants.CouponsSql;
 import az.pashabank.apl.ms.thy.constants.ResultCode;
-import az.pashabank.apl.ms.thy.logger.UFCLogger;
-import az.pashabank.apl.ms.thy.mapper.*;
-import az.pashabank.apl.ms.thy.model.*;
-import az.pashabank.apl.ms.thy.model.thy.CreateNewCustomerOrderRequest;
+import az.pashabank.apl.ms.thy.logger.MainLogger;
+import az.pashabank.apl.ms.thy.mapper.CardProductViewRowMapper;
+import az.pashabank.apl.ms.thy.mapper.CardRowMapper;
+import az.pashabank.apl.ms.thy.mapper.CrsAnswerRowMapper;
+import az.pashabank.apl.ms.thy.mapper.MailRowMapper;
+import az.pashabank.apl.ms.thy.mapper.MobileNumberRowMapper;
+import az.pashabank.apl.ms.thy.mapper.PaymentFieldRowMapper;
+import az.pashabank.apl.ms.thy.mapper.PaymentRowMapper;
+import az.pashabank.apl.ms.thy.mapper.ThyApplicationRowMapper;
+import az.pashabank.apl.ms.thy.mapper.ThyCouponApplicationRowMapper;
+import az.pashabank.apl.ms.thy.mapper.UploadWrapperRowMapper;
+import az.pashabank.apl.ms.thy.model.Branch;
+import az.pashabank.apl.ms.thy.model.CRSAnswer;
+import az.pashabank.apl.ms.thy.model.CRSQuestion;
+import az.pashabank.apl.ms.thy.model.Card;
+import az.pashabank.apl.ms.thy.model.CardProduct;
+import az.pashabank.apl.ms.thy.model.CardProductRequest;
+import az.pashabank.apl.ms.thy.model.CardProductView;
+import az.pashabank.apl.ms.thy.model.CouponCode;
+import az.pashabank.apl.ms.thy.model.CreateNewCouponOrder1Request;
+import az.pashabank.apl.ms.thy.model.CreateNewCouponOrder2Request;
+import az.pashabank.apl.ms.thy.model.CreateNewCustomerOrderRequest;
+import az.pashabank.apl.ms.thy.model.MobileNumbersByPin;
+import az.pashabank.apl.ms.thy.model.OperationResponse;
+import az.pashabank.apl.ms.thy.model.Payment;
+import az.pashabank.apl.ms.thy.model.PaymentField;
+import az.pashabank.apl.ms.thy.model.ThyApplication;
+import az.pashabank.apl.ms.thy.model.ThyCouponApplication;
+import az.pashabank.apl.ms.thy.model.ThyCouponCodes;
+import az.pashabank.apl.ms.thy.model.UploadWrapper;
+import az.pashabank.apl.ms.thy.model.ValidateCouponCodeRequest;
+import az.pashabank.apl.ms.thy.model.thy.CheckTkResponse;
 import az.pashabank.apl.ms.thy.model.thy.RegisterCustomerInThyRequest;
 import az.pashabank.apl.ms.thy.model.thy.ThyUserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.*;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.SqlOutParameter;
+import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
@@ -24,9 +57,11 @@ import java.util.Map;
 @Repository
 public class MainDao implements IMainDao {
 
-    private static final UFCLogger LOGGER = UFCLogger.getLogger(MainDao.class);
+    private static final MainLogger LOGGER = MainLogger.getLogger(MainDao.class);
 
-    private static final String INTERNAL_ERROR = "INTERNAL SERVER ERROR: Adding new customer order is unsuccessful";
+    private static final String INTERNAL_ERROR_1 = "INTERNAL SERVER ERROR: Adding new customer order is unsuccessful";
+    private static final String INTERNAL_ERROR_2 = "INTERNAL SERVER ERROR: Adding new coupon order is unsuccessful";
+    private static final String INTERNAL_ERROR_3 = "INTERNAL SERVER ERROR: Updating new coupon order is unsuccessful";
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -60,7 +95,7 @@ public class MainDao implements IMainDao {
     }
 
     @Override
-    public boolean checkOtpCode(String otpCode, String pin, OperationResponse operationResponse) {
+    public boolean checkOtpCode(String otpCode, String pin) {
         boolean result = false;
         String sqlText = "SELECT count(*) FROM pc_otp_sms WHERE otp_code = ? AND pin_code = ? AND expire_status = 'N'";
         try {
@@ -144,7 +179,7 @@ public class MainDao implements IMainDao {
     }
 
     @Override
-    public Integer addNewApplication(CreateNewCustomerOrderRequest request, OperationResponse operationResponse) {
+    public Integer addNewApplication(CreateNewCustomerOrderRequest request, OperationResponse operationResponse, CheckTkResponse checkTkResponse) {
         Integer newAppId = null;
         try {
             SimpleJdbcCall call =
@@ -180,6 +215,8 @@ public class MainDao implements IMainDao {
                                     new SqlParameter("p_branch_code", Types.VARCHAR),
                                     new SqlParameter("p_branch_name", Types.VARCHAR),
                                     new SqlParameter("p_amount_to_pay", Types.NUMERIC),
+                                    new SqlParameter("p_payment_method", Types.VARCHAR),
+                                    new SqlParameter("p_roaming_no", Types.VARCHAR),
                                     new SqlOutParameter("return", Types.INTEGER)
                             );
 
@@ -201,10 +238,10 @@ public class MainDao implements IMainDao {
                             .addValue("p_secret_code", request.getSecretCode())
                             .addValue("p_workplace", request.getWorkplace())
                             .addValue("p_position", request.getPosition())
-                            .addValue("p_urgent", request.getUrgent() ? "Y" : "N")
+                            .addValue("p_urgent", request.isUrgent() ? "Y" : "N")
                             .addValue("p_tk_no", request.getTkNo())
-                            .addValue("p_passport_name", request.getPassportName())
-                            .addValue("p_passport_surname", request.getPassportSurname())
+                            .addValue("p_passport_name", checkTkResponse.getName())
+                            .addValue("p_passport_surname", checkTkResponse.getSurname())
                             .addValue("p_accepted_terms", request.getAcceptedTerms())
                             .addValue("p_accepted_gsa", request.getAcceptedGsa())
                             .addValue("p_currency", request.getCurrency())
@@ -213,6 +250,8 @@ public class MainDao implements IMainDao {
                             .addValue("p_branch_code", request.getBranchCode())
                             .addValue("p_branch_name", request.getBranchName())
                             .addValue("p_amount_to_pay", request.getAmountToPay())
+                            .addValue("p_payment_method", request.getPaymentMethod())
+                            .addValue("p_roaming_no", request.getRoamingNo())
                     ;
 
             newAppId = call.executeFunction(Integer.class, in);
@@ -220,19 +259,126 @@ public class MainDao implements IMainDao {
             insertCRSAnswers(request.getCrsAnswers(), newAppId);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
-            operationResponse.setMessage(INTERNAL_ERROR);
+            operationResponse.setMessage(INTERNAL_ERROR_1);
         }
         return newAppId;
     }
 
     @Override
-    public String registerPayment(Payment payment) {
+    public Integer addNewCouponApplication(CreateNewCouponOrder1Request request, OperationResponse operationResponse) {
+        Integer newAppId = null;
+        try {
+            SimpleJdbcCall call =
+                    new SimpleJdbcCall(jdbcTemplate)
+                            .withCatalogName("pkg_thy_applications")
+                            .withFunctionName("add_thy_coupon_application")
+                            .declareParameters(
+                                    new SqlParameter("p_name", Types.VARCHAR),
+                                    new SqlParameter("p_surname", Types.VARCHAR),
+                                    new SqlParameter("p_mobile_no", Types.VARCHAR),
+                                    new SqlParameter("p_email", Types.VARCHAR),
+                                    new SqlOutParameter("return", Types.INTEGER)
+                            );
+
+            SqlParameterSource in =
+                    new MapSqlParameterSource()
+                            .addValue("p_name", request.getName())
+                            .addValue("p_surname", request.getSurname())
+                            .addValue("p_mobile_no", request.getMobileNo())
+                            .addValue("p_email", request.getEmail())
+                    ;
+
+            newAppId = call.executeFunction(Integer.class, in);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            operationResponse.setMessage(INTERNAL_ERROR_2);
+        }
+        return newAppId;
+    }
+
+    @Override
+    public boolean updateCouponApplicationStep1(CreateNewCouponOrder1Request request, OperationResponse operationResponse) {
+        boolean result = false;
+        String sqlText = "UPDATE thy_coupon_applications\n" +
+                         "SET name = ?,\n" +
+                         "    surname = ?,\n" +
+                         "    mobile_number = ?,\n" +
+                         "    email = ?,\n" +
+                         "    step = ?\n" +
+                         "WHERE id = ?";
+        try {
+            jdbcTemplate.update(
+                    sqlText, request.getName(), request.getSurname(),
+                    request.getMobileNo(), request.getEmail(), 1, request.getAppId()
+            );
+            result = true;
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            LOGGER.error("updateCouponApplicationStep1 Failed. createNewCouponOrder1Request: {}", request);
+            operationResponse.setMessage(INTERNAL_ERROR_3);
+        }
+        return result;
+    }
+
+    @Override
+    public boolean updateCouponApplicationStep2(CreateNewCouponOrder2Request request, OperationResponse operationResponse) {
+        boolean result = false;
+        String sqlText = "UPDATE thy_coupon_applications\n" +
+                         "SET coupon_type = ?,\n" +
+                         "    branch_code = ?,\n" +
+                         "    branch_name = ?,\n" +
+                         "    amount_to_pay = ?,\n" +
+                         "    shipping_address = ?,\n" +
+                         "    step = ?\n" +
+                         "WHERE id = ?";
+        try {
+            jdbcTemplate.update(
+                    sqlText,
+                    request.getCouponType().toString(), request.getBranchCode(), request.getBranchName(),
+                    request.getAmountToPay(), request.getShippingAddress(), 2, request.getAppId()
+            );
+            for (CardProductRequest cardProductRequest : request.getCardProductRequests()) {
+                sqlText = "INSERT INTO thy_coupon_app_card_product(app_id, card_product_id, card_count) VALUES(?, ?, ?)";
+                jdbcTemplate.update(sqlText, request.getAppId(), cardProductRequest.getCardType(), cardProductRequest.getCardCount());
+            }
+            result = true;
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            LOGGER.error("updateCouponApplication Failed. createNewCouponOrderRequest: {}", request);
+            operationResponse.setMessage(INTERNAL_ERROR_3);
+        }
+        return result;
+    }
+
+    @Override
+    public boolean updateCouponApplicationStep3(int appId, OperationResponse operationResponse) {
+        boolean result = false;
+        String sqlText = "UPDATE thy_coupon_applications SET active = ?, step = ? WHERE id = ?";
+        try {
+            jdbcTemplate.update(sqlText, 1, 3, appId);
+            result = true;
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            LOGGER.error("updateCouponApplicationStep3 Failed. appId: {}", appId);
+            operationResponse.setMessage(INTERNAL_ERROR_3);
+        }
+        return result;
+    }
+
+    @Override
+    public String registerPayment(Payment payment, String orderType) {
         String tranId = null;
+        String functionName;
+        if (orderType.equals("COUPON")) {
+            functionName = "register_transaction_coupon";
+        } else {
+            functionName = "register_transaction";
+        }
         try {
             SimpleJdbcCall call =
                     new SimpleJdbcCall(jdbcTemplate)
                             .withCatalogName("pkg_payments")
-                            .withFunctionName("register_transaction")
+                            .withFunctionName(functionName)
                             .declareParameters(
                                     new SqlParameter("p_client_id", Types.INTEGER),
                                     new SqlParameter("p_ecomm_trans", Types.VARCHAR),
@@ -277,9 +423,14 @@ public class MainDao implements IMainDao {
     }
 
     @Override
-    public Payment getPaymentByEcommTransId(String ecommTransId) {
+    public Payment getPaymentByEcommTransId(String ecommTransId, String orderType) {
         Payment payment = null;
-        String sqlText = "SELECT * FROM v_payments WHERE ecomm_trans = ?";
+        String sqlText;
+        if (orderType.equals("COUPON")) {
+            sqlText = "SELECT * FROM v_payments_coupon WHERE ecomm_trans = ?";
+        } else {
+            sqlText = "SELECT * FROM v_payments WHERE ecomm_trans = ?";
+        }
         try {
             payment = jdbcTemplate.queryForObject(sqlText, new Object[]{ecommTransId}, new PaymentRowMapper());
         } catch (Exception e) {
@@ -289,9 +440,14 @@ public class MainDao implements IMainDao {
     }
 
     @Override
-    public Payment getPaymentByAppId(int appId) {
+    public Payment getPaymentByAppId(int appId, String orderType) {
         Payment payment = null;
-        String sqlText = "SELECT * FROM v_payments WHERE app_id = ?";
+        String sqlText;
+        if (orderType.equals("COUPON")) {
+            sqlText = "SELECT * FROM v_payments_coupon WHERE app_id = ?";
+        } else {
+            sqlText = "SELECT * FROM v_payments WHERE app_id = ?";
+        }
         try {
             payment = jdbcTemplate.queryForObject(sqlText, new Object[]{appId}, new PaymentRowMapper());
         } catch (Exception e) {
@@ -332,14 +488,19 @@ public class MainDao implements IMainDao {
     }
 
     @Override
-    public List<Payment> getUnpaidFlexPayments() {
+    public List<Payment> getUnpaidFlexPayments(String orderType) {
         List<Payment> list = new ArrayList<>();
-        String sqlText = "SELECT * FROM v_flex_unpaid_payments";
+        String sqlText;
+        if (orderType.equals("COUPON")) {
+            sqlText = "SELECT * FROM v_flex_unpaid_payments_coupon";
+        } else {
+            sqlText = "SELECT * FROM v_flex_unpaid_payments";
+        }
         try {
             list = jdbcTemplate.query(sqlText, new PaymentRowMapper());
-            for (Payment payment : list) {
+            /*for (Payment payment : list) {
                 payment.setFields(getPaymentFieldsByPaymentId(payment.getId()));
-            }
+            }*/
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -347,13 +508,19 @@ public class MainDao implements IMainDao {
     }
 
     @Override
-    public OperationResponse<String> makePaymentToFlex(int paymentId) {
+    public OperationResponse<String> makePaymentToFlex(int paymentId, String orderType) {
         OperationResponse operationResponse = new OperationResponse(ResultCode.ERROR);
+        String procedureName;
+        if (orderType.equals("COUPON")) {
+            procedureName = "make_flex_payment_coupon";
+        } else {
+            procedureName = "make_flex_payment";
+        }
         try {
             SimpleJdbcCall call =
                     new SimpleJdbcCall(jdbcTemplate)
                             .withCatalogName("flex_payments")
-                            .withProcedureName("make_flex_payment")
+                            .withProcedureName(procedureName)
                             .declareParameters(
                                     new SqlParameter("p_payment_id", Types.INTEGER),
                                     new SqlOutParameter("p_res", Types.SMALLINT),
@@ -372,11 +539,11 @@ public class MainDao implements IMainDao {
             String errorCode = execute.get("p_error_code") != null ? (String) execute.get("p_error_code") : "";
 
             if (res == 1) {
-                LOGGER.info("makePaymentToFlex. Flex payment is successful. paymentId: {}, res: {}", paymentId, res);
+                LOGGER.info("makePaymentToFlex. Flex payment is successful. orderType: {}, paymentId: {}, res: {}", orderType, paymentId, res);
                 operationResponse.setCode(ResultCode.OK);
                 operationResponse.setData(trnRefNo);
             } else {
-                LOGGER.error("makePaymentToFlex. Input - paymentId: {}, Output - res: {}, errorCode: {}", paymentId, res, errorCode);
+                LOGGER.error("makePaymentToFlex. orderType: {}, Input - paymentId: {}, Output - res: {}, errorCode: {}", orderType, paymentId, res, errorCode);
                 operationResponse.setData(errorCode);
             }
         } catch (Exception e) {
@@ -386,13 +553,32 @@ public class MainDao implements IMainDao {
     }
 
     @Override
-    public boolean markApplicationAsPaid(int appId) {
+    public boolean markApplicationAsPaid(int appId, String orderType) {
+        return markPaidOrSent("PAID", appId, orderType);
+    }
+
+    @Override
+    public boolean markApplicationAsSent(int appId, String orderType) {
+        return markPaidOrSent("SENT", appId, orderType);
+    }
+
+    private boolean markPaidOrSent(String markType, int appId, String orderType) {
         boolean result = false;
+        StringBuilder procedureNameBuilder = new StringBuilder("mark_");
+        if (orderType.equals("COUPON")) {
+            procedureNameBuilder.append("coupon_");
+        }
+        procedureNameBuilder.append("application_as_");
+        if (markType.equals("PAID")) {
+            procedureNameBuilder.append("paid");
+        } else {
+            procedureNameBuilder.append("sent");
+        }
         try {
             SimpleJdbcCall call =
                     new SimpleJdbcCall(jdbcTemplate)
                             .withCatalogName("pkg_thy_applications")
-                            .withProcedureName("mark_application_as_paid")
+                            .withProcedureName(procedureNameBuilder.toString())
                             .declareParameters(
                                     new SqlParameter("p_app_id", Types.INTEGER)
                             );
@@ -410,12 +596,18 @@ public class MainDao implements IMainDao {
     }
 
     @Override
-    public void updatePaymentStatus(Payment payment, boolean isSuccessful, String description) {
+    public void updatePaymentStatus(Payment payment, boolean isSuccessful, String description, String orderType) {
+        String procedureName;
+        if (orderType.equals("COUPON")) {
+            procedureName = "update_transaction_status_coupon";
+        } else {
+            procedureName = "update_transaction_status";
+        }
         try {
             SimpleJdbcCall call =
                     new SimpleJdbcCall(jdbcTemplate)
                             .withCatalogName("pkg_payments")
-                            .withProcedureName("update_transaction_status")
+                            .withProcedureName(procedureName)
                             .declareParameters(
                                     new SqlParameter("p_transaction_id", Types.VARCHAR),
                                     new SqlParameter("p_ecomm_trans", Types.VARCHAR),
@@ -476,6 +668,85 @@ public class MainDao implements IMainDao {
             LOGGER.error(e.getMessage(), e);
         }
         return thyApplication;
+    }
+
+    @Override
+    public ThyCouponApplication getThyCouponApplication(int appId) {
+        ThyCouponApplication app = null;
+        String sqlText = "SELECT * FROM thy_coupon_applications WHERE id = ?";
+        try {
+            app = jdbcTemplate.queryForObject(sqlText, new Object[] { appId }, new ThyCouponApplicationRowMapper());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return app;
+    }
+
+    @Override
+    public ThyCouponApplication getActiveCouponApplication(int appId) {
+        ThyCouponApplication app = null;
+        String sqlText = "SELECT * FROM v_thy_active_coupon_apps WHERE id = ?";
+        try {
+            app = jdbcTemplate.queryForObject(sqlText, new Object[] { appId }, new ThyCouponApplicationRowMapper());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return app;
+    }
+
+    @Override
+    public List<CardProductView> getCardProductViews(int appId) {
+        List<CardProductView> list = new ArrayList<>();
+        String sqlText = "SELECT ccp.card_product_id, cp.name card_product_name, ccp.card_count, p.lcy_amount * ccp.card_count total_amount\n" +
+                         "FROM thy_coupon_app_card_product ccp, thy_card_products cp, thy_card_price p\n" +
+                         "WHERE ccp.card_product_id = cp.id\n" +
+                         "  AND cp.id = p.card_product_id\n" +
+                         "  AND cp.active = 1\n" +
+                         "  AND ccp.app_id = ?";
+        try {
+            list = jdbcTemplate.query(sqlText, new Object[] { appId }, new CardProductViewRowMapper());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return list;
+    }
+
+    @Override
+    public CouponCode getElectronCouponCode(int cardProductId) {
+        CouponCode couponCode = null;
+        String sqlText = "SELECT *\n" +
+                         "FROM thy_coupon_codes\n" +
+                         "WHERE type = 'E'\n" +
+                         "  AND status = 1\n" +
+                         "  AND card_product_code = ?\n" +
+                         "  AND rownum = 1";
+        try {
+            couponCode = (CouponCode) jdbcTemplate.queryForObject(sqlText, new Object[] { cardProductId }, new BeanPropertyRowMapper(CouponCode.class));
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return couponCode;
+    }
+
+    @Override
+    public void updateElectronCouponCode(int id) {
+        String sqlText = "UPDATE thy_coupon_codes SET status = 2 WHERE id = ?";
+        try {
+            jdbcTemplate.update(sqlText, id);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+    }
+
+    @Override
+    public String getValueFromEmailConfig(String key) {
+        String sqlText = "SELECT value FROM thy_email_template_config WHERE key = ?";
+        try {
+            return jdbcTemplate.queryForObject(sqlText, String.class, key);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return null;
     }
 
     @Override
@@ -544,34 +815,10 @@ public class MainDao implements IMainDao {
     }
 
     @Override
-    public boolean markApplicationAsSent(int appId) {
-        boolean result = false;
-        try {
-            SimpleJdbcCall call =
-                    new SimpleJdbcCall(jdbcTemplate)
-                            .withCatalogName("pkg_thy_applications")
-                            .withProcedureName("mark_application_as_sent")
-                            .declareParameters(
-                                    new SqlParameter("p_app_id", Types.INTEGER)
-                            );
-
-            SqlParameterSource in =
-                    new MapSqlParameterSource()
-                            .addValue("p_app_id", appId);
-
-            call.execute(in);
-            result = true;
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-        }
-        return result;
-    }
-
-    @Override
     public String addUserInfo(RegisterCustomerInThyRequest request, String tkNumber) {
         try {
             String sqlText = "insert into THY_USER_INFO(NAME,SURNAME,LANGUAGE,NATIONALITY,BIRTH_DATE,GENDER," +
-                    "COUNTRY,CITY,ADDRESS,EMAIL,PHONE_NUMBER,PASSWORD,STATUS,TK_NUMBER) select ?,?,?,?,?,?,?,?,?,?,?,?,?,? from dual " +
+                    "COUNTRY,CITY,ADDRESS,EMAIL,PHONE_NUMBER,PASSWORD,STATUS,TK_NUMBER,TC_KIMLIK) select ?,?,?,?,?,?,?,?,?,?,?,?,?,?,? from dual " +
                     "WHERE NOT EXISTS ( select tk_number from thy_user_info where tk_number=?)";
 
             jdbcTemplate.update(sqlText,
@@ -589,7 +836,7 @@ public class MainDao implements IMainDao {
                     request.getPassword(),
                     0,
                     tkNumber,
-                    tkNumber);
+                    request.getIdentityCardNo());
             return "OK";
         } catch (Exception e) {
             LOGGER.error("Can't add user info {} ", e.getMessage());
@@ -615,7 +862,7 @@ public class MainDao implements IMainDao {
         List<Branch> branchList = new ArrayList<>();
         String sqlText = "SELECT a.branch_code, a.branch_city, a.orderby, a.name," +
                 " a.address, a.latitude, a.longitude, a.descr" +
-                " FROM v_thy_active_branches a where a.lang=lower(?)";
+                " FROM v_thy_active_branches a where a.lang = lower(?)";
         try {
             branchList = jdbcTemplate.query(sqlText, new Object[]{lang}, new BeanPropertyRowMapper(Branch.class));
         } catch (Exception e) {
@@ -673,11 +920,16 @@ public class MainDao implements IMainDao {
     }
 
     @Override
-    public List<CardProduct> getCardProducts(String lang) {
+    public List<CardProduct> getCardProducts(String lang, String orderType) {
         List<CardProduct> cardProducts = new ArrayList<>();
-        String sqlText = "SELECT a.id, a.name, b.lcy_amount as price, a.urgency as urgency_price" +
-                " FROM thy_card_products a, thy_card_price b" +
-                " where a.active = 1 and a.id = b.card_product_id";
+        String sqlText = "SELECT a.id, a.name, b.lcy_amount as price, a.urgency as urgency_price\n" +
+                         "FROM thy_card_products a, thy_card_price b\n" +
+                         "WHERE a.active = 1 AND a.id = b.card_product_id";
+        if (orderType.equals("CARD")) {
+            sqlText += " AND a.card_sale = 1";
+        } else {
+            sqlText += " AND a.coupon_sale = 1";
+        }
         try {
             cardProducts = jdbcTemplate.query(sqlText, new BeanPropertyRowMapper(CardProduct.class));
         } catch (Exception e) {
@@ -691,7 +943,7 @@ public class MainDao implements IMainDao {
         CardProduct cardProduct = new CardProduct();
         String sqlText = "SELECT a.id, a.name, b.lcy_amount as price, a.urgency as urgency_price" +
                 " FROM thy_card_products a, thy_card_price b" +
-                " where a.active = 1 and a.id = b.card_product_id and a.id=?";
+                " where a.active = 1 and a.id = b.card_product_id and a.id = ?";
         try {
             cardProduct = (CardProduct) jdbcTemplate.queryForObject(sqlText, new Object[]{productId}, new BeanPropertyRowMapper(CardProduct.class));
         } catch (Exception e) {
@@ -710,5 +962,102 @@ public class MainDao implements IMainDao {
             return null;
         }
     }
+
+    @Override
+    public CouponCode getCouponCode(int couponId) {
+        CouponCode couponCode = null;
+        String sqlText = "SELECT id, card_product_code, coupon_code, status, appid, coupon_price " +
+                "FROM thy_coupon_codes WHERE id = ?";
+        try {
+            couponCode = (CouponCode) jdbcTemplate.queryForObject(
+                    sqlText,
+                    new Object[]{couponId},
+                    new BeanPropertyRowMapper(CouponCode.class)
+            );
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return couponCode;
+    }
+
+    @Override
+    public boolean updateCouponAppAndStatus(int couponId, int appId) {
+        boolean result = false;
+        String sqlText = "UPDATE thy_coupon_codes SET appid = ?, status = 3 WHERE id = ?";
+        try {
+            jdbcTemplate.update(sqlText, appId, couponId);
+            result = true;
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return result;
+    }
+
+    @Override
+    public String getCouponSerialNo(int appId) {
+        String serialNo = null;
+        String sqlText = "SELECT serial_no FROM thy_coupon_codes WHERE appid = ?";
+        try {
+            serialNo = jdbcTemplate.queryForObject(sqlText, String.class, appId);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return serialNo;
+    }
+
+    @Override
+    public String getPromoCodeById(int promoCodeId) {
+        String promoCode = null;
+        String sqlText = "SELECT promo_code FROM thy_promocode WHERE id = ?";
+        try {
+            promoCode = jdbcTemplate.queryForObject(sqlText, String.class, promoCodeId);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return promoCode;
+    }
+
+    @Override
+    public CouponCode getCouponCode(ValidateCouponCodeRequest validateCouponCodeRequest){
+        CouponCode couponCode = null;
+        String sqlText = "SELECT id, card_product_code, coupon_code, status, appid, coupon_price " +
+                "FROM thy_coupon_codes where card_product_code = ? and coupon_code = ?";
+        try {
+            couponCode = (CouponCode) jdbcTemplate.queryForObject(sqlText,
+                    new Object[]{validateCouponCodeRequest.getCardProductCode(), validateCouponCodeRequest.getCouponCode()},
+                    new BeanPropertyRowMapper(CouponCode.class));
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+        return couponCode;
+    }
+
+    @Override
+    public List<ThyCouponCodes> getThyCouponCodes(String serialNo) {
+        List<ThyCouponCodes> list = new ArrayList<>();
+        String sqlText = CouponsSql.GET_COUPONS.getSql();
+        try {
+            list = jdbcTemplate.query(sqlText, new Object[]{serialNo}, new BeanPropertyRowMapper(ThyCouponCodes.class));
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public void updateCouponCodes(String id, String username) {
+
+        String sqlText1 = CouponsSql.UPDATE_COUPONS.getSql();
+        try {
+            int[] types = {Types.VARCHAR, Types.VARCHAR};
+            jdbcTemplate.update(sqlText1, new Object[]{username,id}, types);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+
 
 }

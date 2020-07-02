@@ -2,18 +2,24 @@ package az.pashabank.apl.ms.thy.webcontroller;
 
 import az.pashabank.apl.ms.thy.constants.URL;
 import az.pashabank.apl.ms.thy.dao.MainDao;
-import az.pashabank.apl.ms.thy.logger.UFCLogger;
+import az.pashabank.apl.ms.thy.logger.MainLogger;
 import az.pashabank.apl.ms.thy.model.Login;
 import az.pashabank.apl.ms.thy.model.OperationResponse;
 import az.pashabank.apl.ms.thy.model.thy.RegisterCustomerInThyRequest;
 import az.pashabank.apl.ms.thy.model.thy.ThyUserInfo;
-import az.pashabank.apl.ms.thy.service.MainService;
+import az.pashabank.apl.ms.thy.service.CardService;
 import az.pashabank.apl.ms.thy.utils.Utils;
 import io.swagger.annotations.Api;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpSession;
@@ -25,10 +31,10 @@ import javax.validation.Valid;
 @Api("PashaBank THY Miles & Smiles UI Api")
 public class UIRestController {
 
-    private static final UFCLogger LOGGER = UFCLogger.getLogger(UIRestController.class);
+    private static final MainLogger LOGGER = MainLogger.getLogger(UIRestController.class);
 
     @Autowired
-    private MainService mainService;
+    private CardService cardService;
 
     @Autowired
     private MainDao mainDao;
@@ -36,13 +42,13 @@ public class UIRestController {
 
     @GetMapping(URL.GET_CHECK_TK_UI)
     public String checkTKUI(@PathVariable final String tk) {
-        OperationResponse response = mainService.checkTK(tk);
+        OperationResponse response = cardService.checkTK(tk);
         LOGGER.info("checkTK. TK: {}, response: {}", tk, response);
         if (response.getCode().name().equals("OK")) {
             RegisterCustomerInThyRequest registerCustomerInThyRequest = new RegisterCustomerInThyRequest();
             registerCustomerInThyRequest.setName(new JSONObject(response).getJSONObject("data").get("name").toString());
             registerCustomerInThyRequest.setSurname(new JSONObject(response).getJSONObject("data").get("surname").toString());
-            String addUserToDb = mainService.addTkUserInfo(registerCustomerInThyRequest, tk);
+            String addUserToDb = cardService.addTkUserInfo(registerCustomerInThyRequest, tk);
             if (addUserToDb.equals("OK")) {
                 LOGGER.info("TK added to DB during checking TK {}", tk);
             } else {
@@ -65,33 +71,31 @@ public class UIRestController {
         registerCustomerInThyRequest.setPassword(randomPass);
         registerCustomerInThyRequest.setRepeatPassword(randomPass);
         if (registerCustomerInThyRequest.getBirthDate() != null) {
-            String month = registerCustomerInThyRequest.getBirthDate().split("-")[1];
-            String day = registerCustomerInThyRequest.getBirthDate().split("-")[2];
-            String year = registerCustomerInThyRequest.getBirthDate().split("-")[0];
-            registerCustomerInThyRequest.setBirthDate(day + "." + month + "." + year);
+            String birthDate = registerCustomerInThyRequest.getBirthDate();
+            registerCustomerInThyRequest.setBirthDate(birthDate);
         }
-        String addUserToDb = mainService.addTkUserInfo(registerCustomerInThyRequest, "this_tk_doesnt_exist");
+        String addUserToDb = cardService.addTkUserInfo(registerCustomerInThyRequest, "this_tk_doesnt_exist");
         if (addUserToDb.equals("OK")) {
-            OperationResponse response = mainService.registerCustomerInThyForUi(registerCustomerInThyRequest);
+            OperationResponse response = cardService.registerCustomerInThyForUi(registerCustomerInThyRequest);
             LOGGER.info("registerCustomerInThy. request: {}, response: {}", registerCustomerInThyRequest, response);
             String tkNo = "";
             String email = "";
             if (response.getCode().name().equals("OK")) {
                 tkNo = new JSONObject(response).getJSONObject("data").getJSONObject("memberProfileData").get("memberId").toString();
                 email = new JSONObject(response).getJSONObject("data").getJSONObject("memberProfileData").get("emailAddress").toString();
-                mainService.updateTHYuserInfo(registerCustomerInThyRequest.getEmail(), tkNo, 1);
+                cardService.updateTHYuserInfo(registerCustomerInThyRequest.getEmail(), tkNo, 1);
             } else {
-                mainService.updateTHYuserInfo(registerCustomerInThyRequest.getEmail(), "", 2);
+                cardService.updateTHYuserInfo(registerCustomerInThyRequest.getEmail(), "", 2);
             }
             JSONObject jo = new JSONObject();
             jo.put("code", response.getCode());
             jo.put("message", response.getMessage());
             jo.put("tk", tkNo);
             if (response.getCode().name().equals("OK")) {
-                String sendSmsPasswordText = mainService.getDynamicVal("send_sms_user_password_text");
+                String sendSmsPasswordText = cardService.getDynamicVal("send_sms_user_password_text");
                 if (sendSmsPasswordText != null) {
                     String smsText = sendSmsPasswordText.replace("_tkno_", tkNo).replace("_password_", randomPass);
-                    mainService.sendPassword(registerCustomerInThyRequest.getMobileNo(), smsText);
+                    cardService.sendPassword(registerCustomerInThyRequest.getMobileNo(), smsText);
                 } else {
                     LOGGER.error("Can't key send_sms_user_password_text value from DB! ");
                 }
@@ -114,10 +118,11 @@ public class UIRestController {
             httpSession.setAttribute("loginStatus", "");
             return new RedirectView("tk");
         } else {
-            String responseMessage = mainService.login(login);
+            String responseMessage = cardService.login(login);
             LOGGER.info("responseMessage: {}", responseMessage);
             if (responseMessage.equals("OK")) {
                 httpSession.setAttribute("loggedIn", true);
+                httpSession.setAttribute("username", login.getUsername());
                 return new RedirectView("tk");
             } else {
                 httpSession.setAttribute("loginStatus", "Yanlış istifadəçi adı və ya parol daxil etdiyiniz.");
@@ -129,7 +134,7 @@ public class UIRestController {
 
     @RequestMapping(value = URL.RESEND_SMS, method = RequestMethod.GET)
     public String resendSms(@PathVariable final int userId) {
-        String responseCode = mainService.resendSms(userId);
+        String responseCode = cardService.resendSms(userId);
         LOGGER.info("resendSms responseCode {}", responseCode);
         JSONObject jo = new JSONObject();
         jo.put("responseCode", responseCode);

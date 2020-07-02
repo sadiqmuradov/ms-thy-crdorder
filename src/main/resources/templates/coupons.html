@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>THY Card Order</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <link th:href="@{/css/responsive.css}" rel="stylesheet">
+    <link rel="shortcut icon" type="image/x-icon" th:href="@{/images/logo_az.png}"/>
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+</head>
+<body>
+<div id="loader"><img th:src="@{/images/loader.gif}"/></div>
+
+
+<div class="container">
+    <a th:href="@{/tk}"><img th:src="@{/images/logo_az.png}"
+                             style="position: fixed;width: 120px;height: auto;top: 20px;left:20px"/></a>
+    <div class="row">
+        <br/><br/>
+        <div class="form-group" style="float: right;">
+            <form action="/ms-thy-crdorder/coupons" method="get">
+                <input placeholder="Coupon seria nömrəsi üzrə axtarış" class="form-control" name="c" th:value="${c}"
+                       style="width: 300px;float: left"/>
+                <!--<input type="hidden" name="page" th:value="${currentPage}"/>-->
+                <button type="submit" class="btn btn-primary" style="margin-left: 5px">Axtar</button>
+            </form>
+        </div>
+        <br/>
+        <form th:action="@{/disable-coupon}" method="POST">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Product</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>AppId</th>
+                    <th>Coupon Price</th>
+                    <th>Username</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody th:if="${coupon != null}">
+                <tr >
+                    <td th:text="${coupon.id}" name="id"></td>
+                    <td th:text="${coupon.productCode}"></td>
+                    <td th:text="${coupon.name}"></td>
+                    <td th:text="${coupon.statusName}"></td>
+                    <td th:text="${coupon.appId}"></td>
+                    <td th:text="${coupon.couponPrice}"></td>
+                    <td th:text="${coupon.username}"></td>
+                    <td>
+                        <button type="submit" class="btn btn-danger" th:if="${coupon.status == 1}"
+                                onclick="getUpdateCodes()" style="margin-left: 5px">Disable</button>
+                        <text th:if="${coupon.status==0}">Disabled</text>
+                    </td>
+
+                </tr>
+                </tbody>
+            </table>
+            <input th:if="${coupon != null}" type="hidden" th:value="${coupon.serialNo}" name="c" />
+            <input th:if="${coupon != null}" type="hidden" th:value="${coupon.id}" name="id" />
+        </form>
+
+    </div>
+</div>
+</body>
+
+</html>

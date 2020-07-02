@@ -1,7 +1,7 @@
 package az.pashabank.apl.ms.thy.client;
 
 import az.pashabank.apl.ms.thy.constants.URL;
-import az.pashabank.apl.ms.thy.logger.UFCLogger;
+import az.pashabank.apl.ms.thy.logger.MainLogger;
 import az.pashabank.apl.ms.thy.model.ecomm.ECommRegisterPaymentRequest;
 import az.pashabank.apl.ms.thy.model.ecomm.ECommRegisterPaymentResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class ECommRestClient {
-    private static final UFCLogger LOGGER = UFCLogger.getLogger(ECommRestClient.class);
+    private static final MainLogger LOGGER = MainLogger.getLogger(ECommRestClient.class);
 
     @Value("${ecomm.card.clientId}")
     private String ecommClientId;

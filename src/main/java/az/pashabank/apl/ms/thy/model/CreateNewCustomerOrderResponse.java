@@ -1,4 +1,4 @@
-package az.pashabank.apl.ms.thy.model.thy;
+package az.pashabank.apl.ms.thy.model;
 
 import java.util.StringJoiner;
 

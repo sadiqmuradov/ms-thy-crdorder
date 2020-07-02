@@ -5,10 +5,10 @@ import java.util.StringJoiner;
 public class CheckPaymentStatusRequest {
 
     private String transactionId;
+    private Integer appId;
     private String ipAddress;
 
-    public CheckPaymentStatusRequest() {
-    }
+    public CheckPaymentStatusRequest() { }
 
     public CheckPaymentStatusRequest(String transactionId, String ipAddress) {
         this.transactionId = transactionId;
@@ -23,6 +23,14 @@ public class CheckPaymentStatusRequest {
         this.transactionId = transactionId;
     }
 
+    public Integer getAppId() {
+        return appId;
+    }
+
+    public void setAppId(Integer appId) {
+        this.appId = appId;
+    }
+
     public String getIpAddress() {
         return ipAddress;
     }
@@ -35,6 +43,7 @@ public class CheckPaymentStatusRequest {
     public String toString() {
         return new StringJoiner(", ", CheckPaymentStatusRequest.class.getSimpleName() + "[", "]")
                 .add("transactionId='" + transactionId + "'")
+                .add("appId=" + appId)
                 .add("ipAddress='" + ipAddress + "'")
                 .toString();
     }

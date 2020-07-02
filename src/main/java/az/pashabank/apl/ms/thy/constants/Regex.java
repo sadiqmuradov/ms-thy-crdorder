@@ -14,6 +14,7 @@ public class Regex {
     public static final String NUMBER = "^[0-9]+$";
     public static final String CURRENCY = "^(AZN|USD|EUR|GBP)$";
     public static final String PHONE = "^(\\+994)[0-9]+$";
+    public static final String AZERCELL_NO = "^(\\+994|0)?5[01]\\d{7}$";
     public static final String UPLOAD_FILE = "^(image/jpeg|image/png|image/x-png|application/pdf)$";
     public static final String CARD_BIN = "^\\d{6}$";
 

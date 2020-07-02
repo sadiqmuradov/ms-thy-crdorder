@@ -1,6 +1,7 @@
 package az.pashabank.apl.ms.thy.model.thy;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+
+import net.logstash.logback.encoder.org.apache.commons.lang.builder.ToStringBuilder;
 
 public class SpecificComboBox {
 

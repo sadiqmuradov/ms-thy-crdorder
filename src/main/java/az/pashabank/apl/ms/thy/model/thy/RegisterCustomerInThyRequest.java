@@ -1,7 +1,5 @@
 package az.pashabank.apl.ms.thy.model.thy;
 
-import java.util.StringJoiner;
-
 public class RegisterCustomerInThyRequest {
 
     private String name;
@@ -19,11 +17,12 @@ public class RegisterCustomerInThyRequest {
     private String countryCode;
     private String cityCode;
     private String address;
+    private String identityCardNo;
 
     public RegisterCustomerInThyRequest() {
     }
 
-    public RegisterCustomerInThyRequest(String name, String surname, String nationality, String birthDate, String email, String mobileNo, String securityQuestion, String securityAnswer, String password, String repeatPassword, String corrspondanceLanguage, String gender, String countryCode, String cityCode, String address) {
+    public RegisterCustomerInThyRequest(String name, String surname, String nationality, String birthDate, String email, String mobileNo, String securityQuestion, String securityAnswer, String password, String repeatPassword, String corrspondanceLanguage, String gender, String countryCode, String cityCode, String address, String identityCardNo) {
         this.name = name;
         this.surname = surname;
         this.nationality = nationality;
@@ -39,6 +38,7 @@ public class RegisterCustomerInThyRequest {
         this.countryCode = countryCode;
         this.cityCode = cityCode;
         this.address = address;
+        this.identityCardNo = identityCardNo;
     }
 
     public String getName() {
@@ -161,24 +161,33 @@ public class RegisterCustomerInThyRequest {
         this.address = address;
     }
 
+    public String getIdentityCardNo() {
+        return identityCardNo;
+    }
+
+    public void setIdentityCardNo(String identityCardNo) {
+        this.identityCardNo = identityCardNo;
+    }
+
     @Override
     public String toString() {
-        return new StringJoiner(", ", RegisterCustomerInThyRequest.class.getSimpleName() + "[", "]")
-                .add("name='" + name + "'")
-                .add("surname='" + surname + "'")
-                .add("nationality='" + nationality + "'")
-                .add("birthDate='" + birthDate + "'")
-                .add("email='" + email + "'")
-                .add("mobileNo='" + mobileNo + "'")
-                .add("securityQuestion='" + securityQuestion + "'")
-                .add("securityAnswer='" + securityAnswer + "'")
-                .add("password='" + password + "'")
-                .add("repeatPassword='" + repeatPassword + "'")
-                .add("corrspondanceLanguage='" + corrspondanceLanguage + "'")
-                .add("gender='" + gender + "'")
-                .add("countryCode='" + countryCode + "'")
-                .add("cityCode='" + cityCode + "'")
-                .add("address='" + address + "'")
-                .toString();
+        return "RegisterCustomerInThyRequest{" +
+                "name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", nationality='" + nationality + '\'' +
+                ", birthDate='" + birthDate + '\'' +
+                ", email='" + email + '\'' +
+                ", mobileNo='" + mobileNo + '\'' +
+                ", securityQuestion='" + securityQuestion + '\'' +
+                ", securityAnswer='" + securityAnswer + '\'' +
+                ", password='" + password + '\'' +
+                ", repeatPassword='" + repeatPassword + '\'' +
+                ", corrspondanceLanguage='" + corrspondanceLanguage + '\'' +
+                ", gender='" + gender + '\'' +
+                ", countryCode='" + countryCode + '\'' +
+                ", cityCode='" + cityCode + '\'' +
+                ", address='" + address + '\'' +
+                ", identityCardNo='" + identityCardNo + '\'' +
+                '}';
     }
 }

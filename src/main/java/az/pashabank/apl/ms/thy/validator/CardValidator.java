@@ -2,9 +2,17 @@ package az.pashabank.apl.ms.thy.validator;
 
 import az.pashabank.apl.ms.thy.constants.Regex;
 import az.pashabank.apl.ms.thy.dao.MainDao;
-import az.pashabank.apl.ms.thy.logger.UFCLogger;
-import az.pashabank.apl.ms.thy.model.*;
-import az.pashabank.apl.ms.thy.model.thy.CreateNewCustomerOrderRequest;
+import az.pashabank.apl.ms.thy.logger.MainLogger;
+import az.pashabank.apl.ms.thy.model.Branch;
+import az.pashabank.apl.ms.thy.model.CRSAnswer;
+import az.pashabank.apl.ms.thy.model.CRSQuestion;
+import az.pashabank.apl.ms.thy.model.Card;
+import az.pashabank.apl.ms.thy.model.CheckOtpRequest;
+import az.pashabank.apl.ms.thy.model.CheckPaymentStatusRequest;
+import az.pashabank.apl.ms.thy.model.CreateNewCustomerOrderRequest;
+import az.pashabank.apl.ms.thy.model.OperationResponse;
+import az.pashabank.apl.ms.thy.model.SendOtpRequest;
+import az.pashabank.apl.ms.thy.model.UploadWrapper;
 import az.pashabank.apl.ms.thy.model.thy.RegisterCustomerInThyRequest;
 import az.pashabank.apl.ms.thy.utils.ContentTypeUtils;
 import az.pashabank.apl.ms.thy.utils.Crypto;
@@ -19,9 +27,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
-public class MainValidator {
+public class CardValidator {
 
-    private static final UFCLogger LOGGER = UFCLogger.getLogger(MainValidator.class);
+    private static final MainLogger LOGGER = MainLogger.getLogger(CardValidator.class);
 
     private static final String WRONG_REQUEST = "WRONG REQUEST: Mandatory request parameter is null";
     private static final String WRONG_PIN_1 = "WRONG PIN: Pin is null";
@@ -73,6 +81,8 @@ public class MainValidator {
     private static final String WRONG_RESIDENCY_2 = "WRONG RESIDENCY: Residency is empty";
     private static final String WRONG_NATIONALITY_1 = "WRONG NATIONALITY: Nationality is null";
     private static final String WRONG_NATIONALITY_2 = "WRONG NATIONALITY: Nationality is empty";
+    private static final String WRONG_IDENTITY_CARD_NO_1 = "WRONG IDENTITY NO: Identity is null";
+    private static final String WRONG_IDENTITY_CARD_NO_2= "WRONG IDENTITY NO: Identity is empty";
     private static final String WRONG_MIDDLE_NAME_1 = "WRONG MIDDLE NAME: Middle name is null";
     private static final String WRONG_MIDDLE_NAME_2 = "WRONG MIDDLE NAME: Middle name is empty";
     private static final String WRONG_MIDDLE_NAME_3 = "WRONG MIDDLE NAME: Middle name contains invalid characters";
@@ -117,10 +127,15 @@ public class MainValidator {
     private static final String WRONG_BRANCH_CODE_1 = "WRONG BRANCH CODE: Branch code is null";
     private static final String WRONG_BRANCH_CODE_2 = "WRONG BRANCH CODE: Branch code is empty";
     private static final String WRONG_BRANCH_CODE_3 = "WRONG BRANCH CODE: Branch code is incorrect";
-    private static final String WRONG_TRANSACTION_ID_1 = "WRONG TRANSACTION ID: Transaction id is null";
-    private static final String WRONG_TRANSACTION_ID_2 = "WRONG TRANSACTION ID: Transaction id is empty";
+    private static final String WRONG_PAYMENT_METHOD_1 = "WRONG PAYMENT METHOD: Payment method is null";
+    private static final String WRONG_PAYMENT_METHOD_2 = "WRONG PAYMENT METHOD: Payment method is empty";
+    private static final String WRONG_PAYMENT_METHOD_3 = "WRONG PAYMENT METHOD: Payment method is incorrect";
+    private static final String WRONG_TRANSACTION_APP_ID = "WRONG TRANSACTION AND APP ID: Both transaction and app ids are invalid";
     private static final String WRONG_IP_ADDRESS_1 = "WRONG IP ADDRESS: Ip address is null";
     private static final String WRONG_IP_ADDRESS_2 = "WRONG IP ADDRESS: Ip address is empty";
+    private static final String WRONG_ROAMING_NO_1 = "WRONG ROAMING NO: Roaming number is null";
+    private static final String WRONG_ROAMING_NO_2 = "WRONG ROAMING NO: Roaming number length is not 9 allowed";
+    private static final String WRONG_ROAMING_NO_3 = "WRONG ROAMING NO: Roaming number is not numeric";
 
     @Value("${upload.folder.thy_applications}")
     protected String uploadFolder;
@@ -147,7 +162,7 @@ public class MainValidator {
             operationResponse.setMessage(WRONG_REQUEST);
         } else if (
                 !isPinValid(request.getPin(), operationResponse) ||
-                        !isMobileNoValid(request.getMobileNo(), operationResponse) ||
+                        !isRoamingNoValid(request.getMobileNo(), operationResponse) ||
                         !isLangValid(request.getLang(), operationResponse)
         ) {
             isValid = false;
@@ -159,8 +174,8 @@ public class MainValidator {
         return validateStringAlphaNum(pin, operationResponse, WRONG_PIN_1, WRONG_PIN_2, WRONG_PIN_3);
     }
 
-    private boolean isMobileNoValid(String mobileNo, OperationResponse operationResponse) {
-        return validateStringPhone(mobileNo, operationResponse, WRONG_MOBILE_NO_1, WRONG_MOBILE_NO_2, WRONG_MOBILE_NO_3);
+    public boolean isMobileNoValid(String mobileNo, OperationResponse operationResponse) {
+        return !isStringNullOrEmpty(mobileNo, operationResponse, WRONG_MOBILE_NO_1, WRONG_MOBILE_NO_2);
     }
 
     private boolean isLangValid(String lang, OperationResponse operationResponse) {
@@ -194,9 +209,9 @@ public class MainValidator {
             isValid = false;
             operationResponse.setMessage(WRONG_REQUEST);
         } else if (
-                !isNameValid(request.getName(), operationResponse) ||
-                        !isSurnameValid(request.getSurname(), operationResponse) ||
-                        !isNationalityValid(request.getNationality(), operationResponse) ||
+//                !isNameValid(request.getName(), operationResponse) ||
+//                        !isSurnameValid(request.getSurname(), operationResponse) ||
+                !isNationalityValid(request.getNationality(), operationResponse) ||
                         !isBirthDateValid(request.getBirthDate(), operationResponse) ||
                         !isEmailValid(request.getEmail(), operationResponse) ||
                         !isMobileNoValid(request.getMobileNo(), operationResponse) ||
@@ -218,9 +233,9 @@ public class MainValidator {
             isValid = false;
             operationResponse.setMessage(WRONG_REQUEST);
         } else if (
-                !isNameValid(request.getName(), operationResponse) ||
-                        !isSurnameValid(request.getSurname(), operationResponse) ||
-                        !isNationalityValid(request.getNationality(), operationResponse) ||
+            // !isNameValid(request.getName(), operationResponse) ||
+//                        !isSurnameValid(request.getSurname(), operationResponse) ||
+                !isNationalityValid(request.getNationality(), operationResponse) ||
                         !isBirthDateValid(request.getBirthDate(), operationResponse) ||
                         !isEmailValid(request.getEmail(), operationResponse) ||
                         !isMobileNoValid(request.getMobileNo(), operationResponse) ||
@@ -228,7 +243,7 @@ public class MainValidator {
                                 request.getName(), request.getSurname(),
                                 request.getPassword(), request.getRepeatPassword(),
                                 operationResponse
-                        )
+                        ) || !isIdentityCardNoValid(request.getNationality(), request.getIdentityCardNo(), operationResponse)
         ) {
             isValid = false;
         }
@@ -242,11 +257,11 @@ public class MainValidator {
     ) {
         boolean result = true;
         if (
-                !isPassportNameValid(passportName, operationResponse) ||
-                        !isPassportSurnameValid(passportSurname, operationResponse) ||
+            // !isPassportNameValid(passportName, operationResponse) ||
+            // !isPassportSurnameValid(passportSurname, operationResponse) ||
 //                        !isSecurityQuestionValid(securityQuestion, operationResponse) ||
 //                        !isSecurityAnswerValid(securityAnswer, operationResponse) ||
-                        !isPasswordValid(password, operationResponse) ||
+                !isPasswordValid(password, operationResponse) ||
                         !isRepeatPasswordValid(repeatPassword, operationResponse) ||
                         !arePasswordsSame(password, repeatPassword, operationResponse)
         ) {
@@ -255,11 +270,11 @@ public class MainValidator {
         return result;
     }
 
-    private boolean isNameValid(String name, OperationResponse operationResponse) {
+    public boolean isNameValid(String name, OperationResponse operationResponse) {
         return validateStringLetters(name, operationResponse, WRONG_NAME_1, WRONG_NAME_2, WRONG_NAME_3);
     }
 
-    private boolean isSurnameValid(String surname, OperationResponse operationResponse) {
+    public boolean isSurnameValid(String surname, OperationResponse operationResponse) {
         return validateStringLetters(surname, operationResponse, WRONG_SURNAME_1, WRONG_SURNAME_2, WRONG_SURNAME_3);
     }
 
@@ -267,11 +282,15 @@ public class MainValidator {
         return !isStringNullOrEmpty(nationality, operationResponse, WRONG_NATIONALITY_1, WRONG_NATIONALITY_2);
     }
 
+    private boolean isIdentityCardNoValid(String nationality, String identityCardNo, OperationResponse operationResponse) {
+        return !isStringNullOrEmpty(nationality, operationResponse, WRONG_IDENTITY_CARD_NO_1, WRONG_IDENTITY_CARD_NO_2);
+    }
+
     private boolean isBirthDateValid(String birthDate, OperationResponse operationResponse) {
         return validateStringDate(birthDate, operationResponse, WRONG_BIRTH_DATE_1, WRONG_BIRTH_DATE_2, WRONG_BIRTH_DATE_3);
     }
 
-    private boolean isEmailValid(String email, OperationResponse operationResponse) {
+    public boolean isEmailValid(String email, OperationResponse operationResponse) {
         return validateStringEmail(email, operationResponse, WRONG_EMAIL_1, WRONG_EMAIL_2, WRONG_EMAIL_3);
     }
 
@@ -290,11 +309,11 @@ public class MainValidator {
     ) {
         boolean result = true;
         if (
-                !isPassportNameValid(passportName, operationResponse) ||
-                        !isPassportSurnameValid(passportSurname, operationResponse) ||
-                        !isSecurityQuestionValid(securityQuestion, operationResponse) ||
-                        !isSecurityAnswerValid(securityAnswer, operationResponse) ||
-                        !isPasswordValid(password, operationResponse) ||
+//                !isPassportNameValid(passportName, operationResponse) ||
+//                        !isPassportSurnameValid(passportSurname, operationResponse) ||
+//                        !isSecurityQuestionValid(securityQuestion, operationResponse) ||
+//                        !isSecurityAnswerValid(securityAnswer, operationResponse) ||
+                !isPasswordValid(password, operationResponse) ||
                         !isRepeatPasswordValid(repeatPassword, operationResponse) ||
                         !arePasswordsSame(password, repeatPassword, operationResponse)
         ) {
@@ -346,33 +365,26 @@ public class MainValidator {
                         !isNationalityValid(request.getNationality(), operationResponse) ||
                         !isNameValid(request.getName(), operationResponse) ||
                         !isSurnameValid(request.getSurname(), operationResponse) ||
-//                        !isMiddleNameValid(request.getMiddleName(), operationResponse) ||
                         !isGenderValid(request.getGender(), operationResponse) ||
                         !isBirthDateValid(request.getBirthDate(), operationResponse) ||
                         !isFileUploadsValid(request.getFileUploads(), operationResponse) ||
                         !isRegistrationCityValid(request.getRegistrationCity(), operationResponse) ||
                         !isRegistrationAddressValid(request.getRegistrationAddress(), operationResponse) ||
-                        //!isDomicileCityValid(request.getDomicileCity(), operationResponse) ||
-                        //!isDomicileAddressValid(request.getDomicileAddress(), operationResponse) ||
                         !isMobileNoValid(request.getMobileNo(), operationResponse) ||
                         !isEmailValid(request.getEmail(), operationResponse) ||
                         !isSecretCodeValid(request.getSecretCode(), operationResponse) ||
 //                        !isWorkplaceValid(request.getWorkplace(), operationResponse) ||
 //                        !isPositionValid(request.getPosition(), operationResponse) ||
-                        !areTkAndThyCustomerRegistrationFieldsValid(
-                                request.getTkNo(),
-                                request.getPassportName(), request.getPassportSurname(),
-                                request.getSecurityQuestion(), request.getSecurityAnswer(),
-                                request.getPassword(), request.getRepeatPassword(),
-                                operationResponse
-                        ) ||
-                        !isCrsAnswersValid(request.getCrsAnswers(), operationResponse) ||
+                        !areTkAndThyCustomerRegistrationFieldsValid(request.getTkNo(), operationResponse) ||
+                        !isCrsAnswersValid(request.getCrsAnswers(), operationResponse, lang) ||
                         !isAcceptedTermsValid(request.getAcceptedTerms(), operationResponse) ||
                         !isAcceptedGsaValid(request.getAcceptedGsa(), operationResponse) ||
                         !isCurrencyValid(request.getCurrency(), operationResponse) ||
                         !isCardTypeValid(request.getCardType(), request.getCurrency(), request.getPeriod(), operationResponse) ||
                         !isPeriodValid(request.getPeriod(), operationResponse) ||
-                        !isBranchCodeValid(request.getBranchCode(), lang, operationResponse)
+                        !isBranchCodeValid(request.getBranchCode(), lang, operationResponse) ||
+                        !isPaymentMethodValid(request.getPaymentMethod().toString(), lang, operationResponse)
+//                        !isRoamingNoValid(request.getRoamingNo(), operationResponse)
         ) {
             isValid = false;
         }
@@ -382,15 +394,6 @@ public class MainValidator {
             if (!isStringAlphaNum(request.getTkNo(), operationResponse, WRONG_TK_3)) {
                 isValid = false;
             }
-        } else if (
-                !areThyRegistrationSpecificFieldsValid(
-                        request.getPassportName(), request.getPassportSurname(),
-                        request.getSecurityQuestion(), request.getSecurityAnswer(),
-                        request.getPassword(), request.getRepeatPassword(),
-                        operationResponse
-                )
-        ) {
-            isValid = false;
         }
         return isValid;
     }
@@ -422,49 +425,33 @@ public class MainValidator {
         return !isStringNullOrEmpty(registrationAddress, operationResponse, WRONG_REGISTRATION_ADDRESS_1, WRONG_REGISTRATION_ADDRESS_2);
     }
 
-    /*private boolean isDomicileCityValid(String domicileCity, OperationResponse operationResponse) {
-        return !isStringNullOrEmpty(domicileCity, operationResponse, WRONG_DOMICILE_CITY_1, WRONG_DOMICILE_CITY_2);
-    }
-
-    private boolean isDomicileAddressValid(String domicileAddress, OperationResponse operationResponse) {
-        return !isStringNullOrEmpty(domicileAddress, operationResponse, WRONG_DOMICILE_ADDRESS_1, WRONG_DOMICILE_ADDRESS_2);
-    }*/
-
     private boolean isWorkplaceValid(String workplace, OperationResponse operationResponse) {
-        return validateStringLetterSpaces(workplace, operationResponse, WRONG_WORKPLACE_1, WRONG_WORKPLACE_2, WRONG_WORKPLACE_3);
+//        return validateStringLetterSpaces(workplace, operationResponse, WRONG_WORKPLACE_1, WRONG_WORKPLACE_2, WRONG_WORKPLACE_3);
+        return !isStringNullOrEmpty(workplace, operationResponse, WRONG_WORKPLACE_1, WRONG_WORKPLACE_2);
     }
 
     private boolean isPositionValid(String position, OperationResponse operationResponse) {
-        return validateStringLetterSpaces(position, operationResponse, WRONG_POSITION_1, WRONG_POSITION_2, WRONG_POSITION_3);
+//        return validateStringLetterSpaces(position, operationResponse, WRONG_POSITION_1, WRONG_POSITION_2, WRONG_POSITION_3);
+        return !isStringNullOrEmpty(position, operationResponse, WRONG_POSITION_1, WRONG_POSITION_2);
     }
+
 
     private boolean areTkAndThyCustomerRegistrationFieldsValid(
             String tkNo,
-            String passportName, String passportSurname,
-            String securityQuestion, String securityAnswer,
-            String password, String repeatPassword,
             OperationResponse operationResponse
     ) {
         boolean result = true;
-        if (
-                isStringNullOrEmpty(tkNo) &&
-                        isStringNullOrEmpty(passportName) &&
-                        isStringNullOrEmpty(passportSurname) &&
-                        isStringNullOrEmpty(securityQuestion) &&
-                        isStringNullOrEmpty(securityAnswer) &&
-                        isStringNullOrEmpty(password) &&
-                        isStringNullOrEmpty(repeatPassword)
-        ) {
+        if (isStringNullOrEmpty(tkNo)) {
             result = false;
             operationResponse.setMessage(WRONG_TK_AND_REGISTER_CUSTOMER_IN_THY);
         }
         return result;
     }
 
-    private boolean isCrsAnswersValid(List<CRSAnswer> crsAnswers, OperationResponse operationResponse) {
+    private boolean isCrsAnswersValid(List<CRSAnswer> crsAnswers, OperationResponse operationResponse, String lang) {
         return
                 !isListNullOrEmpty(crsAnswers, operationResponse, WRONG_CRS_ANSWERS_1, WRONG_CRS_ANSWERS_2) &&
-                        validateAllCrsAnswers(crsAnswers, operationResponse)
+                        validateAllCrsAnswers(crsAnswers, operationResponse, lang)
                 ;
     }
 
@@ -486,7 +473,7 @@ public class MainValidator {
         return !isStringNullOrEmpty(currency, operationResponse, WRONG_CURRENCY_1, WRONG_CURRENCY_2);
     }
 
-    private boolean isCardTypeValid(Integer cardType, String currency, Integer period, OperationResponse operationResponse) {
+    public boolean isCardTypeValid(Integer cardType, String currency, Integer period, OperationResponse operationResponse) {
         return !isNumberNull(cardType, operationResponse, WRONG_CARD_TYPE_1) && verifyCard(cardType, currency, period, operationResponse);
     }
 
@@ -494,8 +481,16 @@ public class MainValidator {
         return !isNumberNull(period, operationResponse, WRONG_PERIOD);
     }
 
-    private boolean isBranchCodeValid(String branchCode, String lang, OperationResponse operationResponse) {
+    protected boolean isBranchCodeValid(String branchCode, String lang, OperationResponse operationResponse) {
         return !isStringNullOrEmpty(branchCode, operationResponse, WRONG_BRANCH_CODE_1, WRONG_BRANCH_CODE_2) && verifyBranch(branchCode, lang, operationResponse);
+    }
+
+    private boolean isPaymentMethodValid(String paymentMethod, String lang, OperationResponse operationResponse) {
+        return !isStringNullOrEmpty(paymentMethod, operationResponse, WRONG_PAYMENT_METHOD_1, WRONG_PAYMENT_METHOD_2) && verifyPaymentMethod(paymentMethod, lang, operationResponse);
+    }
+
+    private boolean isRoamingNoValid(String roamingNo, OperationResponse operationResponse) {
+        return validateStringLengthNumber(roamingNo, 9, operationResponse, WRONG_ROAMING_NO_1, WRONG_ROAMING_NO_2, WRONG_ROAMING_NO_3);
     }
 
     public boolean isRequestValid(CheckPaymentStatusRequest request, OperationResponse operationResponse) {
@@ -504,7 +499,7 @@ public class MainValidator {
             isValid = false;
             operationResponse.setMessage(WRONG_REQUEST);
         } else if (
-                !isTransactionIdValid(request.getTransactionId(), operationResponse) ||
+                !areTransactionIdAndAppIdValid(request.getTransactionId(), request.getAppId(), operationResponse) ||
                         !isIpAddressValid(request.getIpAddress(), operationResponse)
         ) {
             isValid = false;
@@ -512,19 +507,24 @@ public class MainValidator {
         return isValid;
     }
 
-    private boolean isTransactionIdValid(String transactionId, OperationResponse operationResponse) {
-        return !isStringNullOrEmpty(transactionId, operationResponse, WRONG_TRANSACTION_ID_1, WRONG_TRANSACTION_ID_2);
+    private boolean areTransactionIdAndAppIdValid(String transactionId, Integer appId, OperationResponse operationResponse) {
+        boolean isValid = !isStringNullOrEmpty(transactionId) || !isNumberNullOrLEZero(appId);
+        if (!isValid) {
+            operationResponse.setMessage(WRONG_TRANSACTION_APP_ID);
+        }
+        return isValid;
     }
 
-    private boolean isIpAddressValid(String ipAddress, OperationResponse operationResponse) {
+    protected boolean isIpAddressValid(String ipAddress, OperationResponse operationResponse) {
         return !isStringNullOrEmpty(ipAddress, operationResponse, WRONG_IP_ADDRESS_1, WRONG_IP_ADDRESS_2);
     }
 
-    private boolean validateAllCrsAnswers(List<CRSAnswer> crsAnswers, OperationResponse operationResponse) {
+    private boolean validateAllCrsAnswers(List<CRSAnswer> crsAnswers, OperationResponse operationResponse, String lang) {
         boolean result = true;
         int anketsCount = crsAnswers.size();
+        List<CRSQuestion> crsQuestions = mainDao.getCRSQuestions(lang);
         for (int i = 0; i < anketsCount; i++) {
-            if (!isCrsAnswerValid(crsAnswers.get(i), i, operationResponse)) {
+            if (!isCrsAnswerValid(crsAnswers.get(i), crsQuestions.get(i).getAddquestion(), i, operationResponse)) {
                 result = false;
                 break;
             }
@@ -532,24 +532,26 @@ public class MainValidator {
         return result;
     }
 
-    private boolean isCrsAnswerValid(CRSAnswer crsAnswer, int index, OperationResponse operationResponse) {
+    private boolean isCrsAnswerValid(CRSAnswer crsAnswer, String addQuest, int index, OperationResponse operationResponse) {
         boolean result = true;
         Integer answer = crsAnswer.getAnswer();
         String desc = crsAnswer.getDescription();
         if (answer == null) {
             result = false;
             operationResponse.setMessage(String.format(WRONG_CRS_ANSWER, index));
-        } else if (answer == 1 && desc == null) {
-            result = false;
-            operationResponse.setMessage(String.format(WRONG_CRS_ANSWER_DESC_1, index));
-        } else if (answer == 1 && desc.trim().isEmpty()) {
-            result = false;
-            operationResponse.setMessage(String.format(WRONG_CRS_ANSWER_DESC_2, index));
+        } else if (answer == 1 && addQuest != null && !addQuest.trim().isEmpty()) {
+            if (desc == null) {
+                result = false;
+                operationResponse.setMessage(String.format(WRONG_CRS_ANSWER_DESC_1, index));
+            } else if (desc.trim().isEmpty()) {
+                result = false;
+                operationResponse.setMessage(String.format(WRONG_CRS_ANSWER_DESC_2, index));
+            }
         }
         return result;
     }
 
-    private boolean isAccepted(Integer acceptedTerms, OperationResponse operationResponse, String msg) {
+    public boolean isAccepted(Integer acceptedTerms, OperationResponse operationResponse, String msg) {
         boolean result = true;
         if (acceptedTerms == 0) {
             result = false;
@@ -589,7 +591,29 @@ public class MainValidator {
         return result;
     }
 
-    private boolean validateStringAlphaNum(String field, OperationResponse operationResponse, String... messages) {
+    private boolean verifyPaymentMethod(String paymentMethod, String lang, OperationResponse operationResponse) {
+        boolean result = false;
+        if (paymentMethod.equalsIgnoreCase("CARD") || paymentMethod.equalsIgnoreCase("COUPON")) {
+            result = true;
+        }
+        if (!result) {
+            operationResponse.setMessage(WRONG_PAYMENT_METHOD_3);
+        }
+        return result;
+    }
+
+    private boolean verifyMobileNo(String mobileNo, OperationResponse operationResponse) {
+        boolean result = false;
+        if (mobileNo != null && mobileNo.trim().length() == 9 && mobileNo.trim().matches(Regex.NUMBER)) {
+            result = true;
+        }
+        if (!result) {
+            operationResponse.setMessage(WRONG_ROAMING_NO_1);
+        }
+        return result;
+    }
+
+    public boolean validateStringAlphaNum(String field, OperationResponse operationResponse, String... messages) {
         return
                 !isStringNullOrEmpty(field, operationResponse, messages[0], messages[1]) &&
                         isStringAlphaNum(field, operationResponse, messages[2])
@@ -598,9 +622,14 @@ public class MainValidator {
 
     private boolean validateStringPhone(String field, OperationResponse operationResponse, String... messages) {
         return
-                !isStringNullOrEmpty(field, operationResponse, messages[0], messages[1]) &&
-                        isStringPhone(field, operationResponse, messages[2])
-                ;
+                !isStringNullOrEmpty(field, operationResponse, messages[0], messages[1])
+                        && isStringPhone(field, operationResponse, messages[2]);
+    }
+
+    private boolean validateStringAzercellNo(String field, OperationResponse operationResponse, String... messages) {
+        return
+                !isStringNullOrEmpty(field, operationResponse, messages[0], messages[1])
+                        && isStringAzercellNo(field, operationResponse, messages[2]);
     }
 
     private boolean validateStringNumber(String field, OperationResponse operationResponse, String... messages) {
@@ -610,28 +639,35 @@ public class MainValidator {
                 ;
     }
 
-    private boolean validateStringLengthRangeNumber(String field, int lowerBound, int upperBound, OperationResponse operationResponse, String... messages) {
+    public boolean validateStringLengthRangeNumber(String field, int lowerBound, int upperBound, OperationResponse operationResponse, String... messages) {
         return
                 !isStringNullOrOutRange(field, lowerBound, upperBound, operationResponse, messages[0], messages[1], messages[2]) &&
                         isStringNumber(field, operationResponse, messages[3])
                 ;
     }
 
-    private boolean validateStringLetters(String field, OperationResponse operationResponse, String... messages) {
+    private boolean validateStringLengthNumber(String field, int length, OperationResponse operationResponse, String... messages) {
+        return
+                !isStringNullOrDifferentLength(field, length, operationResponse, messages[0], messages[1]) &&
+                        isStringNumber(field, operationResponse, messages[2])
+                ;
+    }
+
+    public boolean validateStringLetters(String field, OperationResponse operationResponse, String... messages) {
         return
                 !isStringNullOrEmpty(field, operationResponse, messages[0], messages[1]) &&
                         isStringLetters(field, operationResponse, messages[2])
                 ;
     }
 
-    private boolean validateStringDate(String field, OperationResponse operationResponse, String... messages) {
+    public boolean validateStringDate(String field, OperationResponse operationResponse, String... messages) {
         return
                 !isStringNullOrEmpty(field, operationResponse, messages[0], messages[1]) &&
                         isStringDate(field, operationResponse, messages[2])
                 ;
     }
 
-    private boolean validateStringEmail(String field, OperationResponse operationResponse, String... messages) {
+    public boolean validateStringEmail(String field, OperationResponse operationResponse, String... messages) {
         return
                 !isStringNullOrEmpty(field, operationResponse, messages[0], messages[1]) &&
                         isStringEmail(field, operationResponse, messages[2])
@@ -652,15 +688,7 @@ public class MainValidator {
                 ;
     }
 
-    public boolean isStringNullOrEmpty(String field) {
-        boolean result = false;
-        if (field == null || field.trim().isEmpty()) {
-            result = true;
-        }
-        return result;
-    }
-
-    private boolean isStringNullOrEmpty(String field, OperationResponse operationResponse, String msg1, String msg2) {
+    public boolean isStringNullOrEmpty(String field, OperationResponse operationResponse, String msg1, String msg2) {
         boolean result = false;
         if (field == null) {
             result = true;
@@ -668,6 +696,14 @@ public class MainValidator {
         } else if (field.trim().isEmpty()) {
             result = true;
             operationResponse.setMessage(msg2);
+        }
+        return result;
+    }
+
+    public boolean isStringNullOrEmpty(String field) {
+        boolean result = false;
+        if (field == null || field.trim().isEmpty()) {
+            result = true;
         }
         return result;
     }
@@ -687,7 +723,7 @@ public class MainValidator {
         return result;
     }
 
-    private boolean isStringNullOrDifferentLength(String field, int length, OperationResponse operationResponse, String msg1, String msg2) {
+    public boolean isStringNullOrDifferentLength(String field, int length, OperationResponse operationResponse, String msg1, String msg2) {
         boolean result = false;
         if (field == null) {
             result = true;
@@ -699,7 +735,7 @@ public class MainValidator {
         return result;
     }
 
-    private boolean isListNullOrEmpty(List list, OperationResponse operationResponse, String msg1, String msg2) {
+    protected boolean isListNullOrEmpty(List list, OperationResponse operationResponse, String msg1, String msg2) {
         boolean result = false;
         if (list == null) {
             result = true;
@@ -711,11 +747,19 @@ public class MainValidator {
         return result;
     }
 
-    private boolean isNumberNull(Number field, OperationResponse operationResponse, String msg) {
+    public boolean isNumberNull(Number field, OperationResponse operationResponse, String msg) {
         boolean result = false;
         if (field == null) {
             result = true;
             operationResponse.setMessage(msg);
+        }
+        return result;
+    }
+
+    public boolean isNumberNullOrLEZero(Number field) {
+        boolean result = false;
+        if (field == null || field.doubleValue() <= 0) {
+            result = true;
         }
         return result;
     }
@@ -732,6 +776,15 @@ public class MainValidator {
     private boolean isStringPhone(@NotNull String field, OperationResponse operationResponse, String msg) {
         boolean result = true;
         if (!field.matches(Regex.PHONE)) {
+            result = false;
+            operationResponse.setMessage(msg);
+        }
+        return result;
+    }
+
+    private boolean isStringAzercellNo(@NotNull String field, OperationResponse operationResponse, String msg) {
+        boolean result = true;
+        if (!field.matches(Regex.AZERCELL_NO)) {
             result = false;
             operationResponse.setMessage(msg);
         }
@@ -808,13 +861,7 @@ public class MainValidator {
         boolean result = true;
         try {
             for (UploadWrapper w : wrappers) {
-                String fileName = Crypto.getDoubleUuid() + ContentTypeUtils.getExtension(w.getContentType());
-                String location = uploadFolder + "/" + fileName;
-                Path locationPath = Paths.get(location);
-                Files.write(locationPath, w.getBytes());
-                w.setSize(Files.size(locationPath));
-                w.setName(fileName);
-                w.setLocation(location);
+                writeWrapperFile(w);
             }
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -822,6 +869,15 @@ public class MainValidator {
             result = false;
         }
         return result;
+    }
+
+    public void writeWrapperFile(UploadWrapper w) throws IOException {
+        String fileName = Crypto.getDoubleUuid() + ContentTypeUtils.getExtension(w.getContentType());
+        String location = uploadFolder + "/" + fileName;
+        Files.write(Paths.get(location), w.getBytes());
+        w.setSize(Files.size(Paths.get(location)));
+        w.setName(fileName);
+        w.setLocation(location);
     }
 
     public void deleteWrapperFiles(List<UploadWrapper> wrappers, OperationResponse operationResponse) {

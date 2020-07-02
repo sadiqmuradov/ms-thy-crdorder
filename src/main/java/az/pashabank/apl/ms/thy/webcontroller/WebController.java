@@ -1,11 +1,12 @@
 package az.pashabank.apl.ms.thy.webcontroller;
 
-import az.pashabank.apl.ms.thy.controller.MainController;
+import az.pashabank.apl.ms.thy.controller.CardController;
 import az.pashabank.apl.ms.thy.dao.MainDao;
-import az.pashabank.apl.ms.thy.logger.UFCLogger;
-import az.pashabank.apl.ms.thy.model.Country;
+import az.pashabank.apl.ms.thy.entity.Country;
+import az.pashabank.apl.ms.thy.logger.MainLogger;
+import az.pashabank.apl.ms.thy.model.ThyCouponCodes;
 import az.pashabank.apl.ms.thy.model.thy.ThyUserInfo;
-import az.pashabank.apl.ms.thy.service.MainService;
+import az.pashabank.apl.ms.thy.service.CardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -20,10 +21,10 @@ import java.util.List;
 @Controller
 public class WebController {
 
-    private static final UFCLogger LOGGER = UFCLogger.getLogger(MainController.class);
+    private static final MainLogger LOGGER = MainLogger.getLogger(CardController.class);
 
     @Autowired
-    private MainService mainService;
+    private CardService cardService;
 
     @Autowired
     private MainDao mainDao;
@@ -33,7 +34,7 @@ public class WebController {
         if (httpSession.getAttribute("loggedIn") == null) {
             return "login";
         } else {
-            List<Country> countryList = mainService.getCountryList();
+            List<Country> countryList = cardService.getCountryList("AZ");
             model.addAttribute("countryList", countryList);
             return "index";
         }
@@ -51,7 +52,7 @@ public class WebController {
             List<ThyUserInfo> userList = new ArrayList<>();
             if (q.equals("")) {
                 maxPageCount = mainDao.getThyUsersListCount();
-                userList = mainService.getThyUsersList(page);
+                userList = cardService.getThyUsersList(page);
             } else {
                 maxPageCount = 20;
                 userList = mainDao.getThyUsersListByKeyword(q);
@@ -67,7 +68,7 @@ public class WebController {
     @RequestMapping(value = {"/", "/login"}, method = RequestMethod.GET)
     public String login(ModelMap model, HttpSession httpSession) {
         if (httpSession.getAttribute("loggedIn") != null) {
-            List<Country> countryList = mainService.getCountryList();
+            List<Country> countryList = cardService.getCountryList("AZ");
             model.addAttribute("countryList", countryList);
             return "index";
         } else {
@@ -82,6 +83,39 @@ public class WebController {
     public String logout(ModelMap model, HttpSession httpSession) {
         httpSession.invalidate();
         return "login";
+    }
+
+    @RequestMapping(value = {"/coupons"}, method = RequestMethod.GET)
+    public String coupons(ModelMap model, HttpSession httpSession,@RequestParam(defaultValue = "") String c) {
+        if (httpSession.getAttribute("loggedIn") == null) {
+            return "login";
+        } else {
+            List<ThyCouponCodes> couponList;
+            couponList = mainDao.getThyCouponCodes(c);
+            model.addAttribute("c", c);
+            model.addAttribute("coupon", (!couponList.isEmpty()) ? couponList.get(0) : null);
+            return "coupons";
+        }
+    }
+
+    @RequestMapping(value = {"/disable-coupon"},method = RequestMethod.POST)
+    public String disableCoupon(ModelMap model,HttpSession httpSession,@RequestParam(defaultValue = "") String id, @RequestParam(defaultValue = "") String c){
+        if(httpSession.getAttribute("loggedIn")==null){
+            return "login";
+        }
+        else {
+            String username = "";
+            if (httpSession.getAttribute("username")!=null){
+                username = (String) httpSession.getAttribute("username");
+            }
+            mainDao.updateCouponCodes(id, username);
+            List<ThyCouponCodes> couponList = mainDao.getThyCouponCodes(c);
+
+            model.addAttribute("c", c);
+            model.addAttribute("coupon", (!couponList.isEmpty()) ? couponList.get(0) : null);
+
+            return "coupons";
+        }
     }
 
 }

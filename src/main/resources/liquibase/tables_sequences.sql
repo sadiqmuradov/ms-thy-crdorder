@@ -1,0 +1,19 @@
+-- countries and cities
+CREATE SEQUENCE THY_COUNTRY_SEQ START WITH 1;
+
+create table thy_countries(
+id number(10) not null,
+code varchar2(10),
+name varchar2(200),
+region varchar2(10),
+lang varchar2(10),
+CONSTRAINT THY_COUNTRY_PK PRIMARY KEY (ID));
+
+CREATE TABLE THY_CITIES(
+ID NUMBER(10) not null,
+CODE VARCHAR2(20),
+NAME VARCHAR2(100),
+COUNTRY_CODE VARCHAR2(10),
+CONSTRAINT THY_CITY_PK PRIMARY KEY (ID));
+
+CREATE SEQUENCE THY_CITY_SEQ START WITH 1;

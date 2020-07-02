@@ -1,12 +1,24 @@
 package az.pashabank.apl.ms.thy.model.ecomm;
 
 public class ECommRegisterPaymentRequest {
+
     private int clientId;
     private String amountInCents;
     private String currencyIsoName;
     private String ipAddress;
     private String description;
     private String language;
+
+    public ECommRegisterPaymentRequest() { }
+
+    public ECommRegisterPaymentRequest(int clientId, String amountInCents, String currencyIsoName, String ipAddress, String description, String language) {
+        this.clientId = clientId;
+        this.amountInCents = amountInCents;
+        this.currencyIsoName = currencyIsoName;
+        this.ipAddress = ipAddress;
+        this.description = description;
+        this.language = language;
+    }
 
     public int getClientId() {
         return clientId;

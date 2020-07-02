@@ -12,6 +12,11 @@ public class EcommPaymentStatusRequest {
         this.ipAddress = ipAddress;
     }
 
+    public EcommPaymentStatusRequest(String transactionId, String ipAddress) {
+        this.transactionId = transactionId;
+        this.ipAddress = ipAddress;
+    }
+
     public Integer getClientId() {
         return clientId;
     }
