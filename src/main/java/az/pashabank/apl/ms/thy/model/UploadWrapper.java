@@ -1,15 +1,19 @@
 package az.pashabank.apl.ms.thy.model;
 
-import java.util.Arrays;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.StringJoiner;
 
 public class UploadWrapper {
 
     private byte[] bytes;
-    private long size;
-    private String name;
-    private String location;
     private String contentType;
+    @JsonIgnore
+    private long size;
+    @JsonIgnore
+    private String name;
+    @JsonIgnore
+    private String location;
 
     public UploadWrapper() {
     }
@@ -64,7 +68,6 @@ public class UploadWrapper {
     @Override
     public String toString() {
         return new StringJoiner(", ", UploadWrapper.class.getSimpleName() + "[", "]")
-                .add("bytes=" + Arrays.toString(bytes))
                 .add("size=" + size)
                 .add("name='" + name + "'")
                 .add("location='" + location + "'")

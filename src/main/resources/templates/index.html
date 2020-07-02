@@ -7,14 +7,16 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <title>THY Card Order</title>
+    <link th:href="@{/css/bootstrap-datepicker.css}" rel="stylesheet">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <link th:href="@{/css/font-awesome.min.css}" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
     <link th:href="@{/css/responsive.css}" rel="stylesheet">
     <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/bootstrap-datepicker.min.js}"></script>
     <script type="text/javascript" th:src="@{/js/index.js}"></script>
-</head>
 
+</head>
 <body>
 <div id="loader"><img th:src="@{/images/loader.gif}"/></div>
 <div id="main-container" class="container">
@@ -28,6 +30,10 @@
                         <a th:href="@{/logout}">
                             <button class="btn btn-danger" style="position: absolute;right: 23px;   border-radius: 3px;">Çıxış</button>
                         </a>
+                        <div class="margin-top-50">
+                            <a th:href="@{/coupons}">
+                                <button class="btn btn-info" style="position: absolute;right: 23px;   border-radius: 3px;">Coupons</button>
+                            </a>
                         <div class="panel-heading text-center height-200">
                             <a style="cursor: pointer;" onClick="window.location.reload()"><img
                                     class="img-logo margin-top-10 width-50prc"
@@ -91,7 +97,7 @@
                                                 </div>
                                                 <div class="col-sm-6">
                                                     <label>Milliyət</label>
-                                                    <select name="nationality" id="nationality"
+                                                    <select onchange="selectTurkey()" name="nationality" id="nationality"
                                                             class="form-control required">
                                                         <option value="0">Seçin</option>
                                                         <option th:each="country : ${countryList}"
@@ -106,7 +112,12 @@
 
                                                 <div class="col-sm-6">
                                                     <label>Doğum tarixi</label>
-                                                    <input name="birthDate" type="date" class="form-control required"
+                                                    <input id="birthDate" name="birthDate" type="text" class="form-control required" value="" placeholder="dd.mm.yyyy">
+                                                </div>
+
+                                                <div class="col-sm-6">
+
+                                                    <input name="identityCardNo" id= "tc" type="text" class="form-control required" placeholder="TC kimlik numarası"
                                                            value="">
                                                 </div>
 
@@ -124,7 +135,7 @@
                                             <div class="form-group">
                                                 <div class="col-sm-6">
                                                     <label>Ölkə</label>
-                                                    <select name="countryCode" id="country"
+                                                    <select name="contryCode" id="country"
                                                             class="form-control required">
                                                         <option value="0">Seçin</option>
                                                         <option th:each="country : ${countryList}"
@@ -222,5 +233,24 @@
     </section>
 
 </div>
+<script>
+    $("#birthDate").datepicker({
+        format: "dd.mm.yyyy",
+        autoclose: true
+    });
+
+    var nationality = document.getElementById("nationality");
+    var kimlik = document.getElementById("tc");
+    var country;
+    kimlik.style.display = "none";
+    function selectTurkey() {
+        country = nationality.value;
+        if (country === "TR") {
+            kimlik.style.display = "block";
+        } else {
+            kimlik.style.display = "none";
+        }
+    }
+</script>
 </body>
 </html>

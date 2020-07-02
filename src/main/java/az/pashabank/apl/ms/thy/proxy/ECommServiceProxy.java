@@ -6,6 +6,7 @@ import az.pashabank.apl.ms.thy.model.ecomm.ECommRegisterPaymentResponse;
 import az.pashabank.apl.ms.thy.model.ecomm.EcommPaymentStatusRequest;
 import az.pashabank.apl.ms.thy.model.ecomm.EcommPaymentStatusResponse;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -18,6 +19,6 @@ public interface ECommServiceProxy {
     ECommRegisterPaymentResponse registerPayment(@RequestBody ECommRegisterPaymentRequest eCommRegisterPaymentRequest);
 
     @RequestMapping(method = RequestMethod.POST, value = URL.ECOMM_GET_PAYMENT_STATUS, consumes = "application/json", produces = "application/json")
-    EcommPaymentStatusResponse getPaymentStatus(@RequestBody EcommPaymentStatusRequest ecommPaymentStatusRequest);
+    EcommPaymentStatusResponse getPaymentStatus(@PathVariable("lang") String lang, @RequestBody EcommPaymentStatusRequest ecommPaymentStatusRequest);
 }
 

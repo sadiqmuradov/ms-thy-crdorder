@@ -1,6 +1,6 @@
 package az.pashabank.apl.ms.thy.model;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import net.logstash.logback.encoder.org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -42,6 +42,17 @@ public class Payment {
         this.amount = amount;
         this.description = description;
         this.ecommTransaction = ecommTransaction;
+    }
+
+    public Payment(PaymentClient client, String language, String ipAddress, String currency, BigDecimal amount, String description, String ecommTransaction, int appId) {
+        this.client = client;
+        this.language = language;
+        this.ipAddress = ipAddress;
+        this.currency = currency;
+        this.amount = amount;
+        this.description = description;
+        this.ecommTransaction = ecommTransaction;
+        this.appId = appId;
     }
 
     public Payment(int id) {

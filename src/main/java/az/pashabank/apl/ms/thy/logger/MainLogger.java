@@ -6,17 +6,17 @@ import org.slf4j.Marker;
 
 import java.util.Arrays;
 
-public class UFCLogger {
+public class MainLogger {
 
     private final Logger logger;
 
-    private UFCLogger(Logger logger) {
+    private MainLogger(Logger logger) {
         this.logger = logger;
     }
 
-    public static UFCLogger getLogger(Class<?> clazz) {
+    public static MainLogger getLogger(Class<?> clazz) {
         Logger logger = LoggerFactory.getLogger(clazz);
-        return new UFCLogger(logger);
+        return new MainLogger(logger);
     }
 
     private Object[] filterValues(Object... argArray) {

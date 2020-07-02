@@ -6,16 +6,16 @@
 
 package az.pashabank.apl.ms.thy.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.Locale;
 
 @Service("localMessageService")
 public class LocalMessageService {
 
-    @Resource(name = "messageSource")
+    @Autowired
     private ResourceBundleMessageSource messageSource;
 
     public String get(final String message, Locale locale) {

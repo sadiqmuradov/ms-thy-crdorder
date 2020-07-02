@@ -1,7 +1,12 @@
 package az.pashabank.apl.ms.thy.proxy;
 
 import az.pashabank.apl.ms.thy.constants.URL;
-import az.pashabank.apl.ms.thy.model.thy.*;
+import az.pashabank.apl.ms.thy.model.thy.CheckTkRequest;
+import az.pashabank.apl.ms.thy.model.thy.CheckTkRestResponse;
+import az.pashabank.apl.ms.thy.model.thy.MemberOperationsRequest;
+import az.pashabank.apl.ms.thy.model.thy.MemberOperationsResponse;
+import az.pashabank.apl.ms.thy.model.thy.SecurityQuestionsRequest;
+import az.pashabank.apl.ms.thy.model.thy.SecurityQuestionsRestResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,6 +1,7 @@
 package az.pashabank.apl.ms.thy.model;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+
+import net.logstash.logback.encoder.org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -13,6 +14,7 @@ public class ThyApplication {
     private String name;
     private String surname;
     private String middleName;
+    private String pin;
     private String gender;
     private String birthDate;
     private List<UploadWrapper> fileUploads;
@@ -38,6 +40,9 @@ public class ThyApplication {
     private Branch branch;
     private BigDecimal amountToPay;
     private String ipAddress;
+    private String paymentMethod;
+    private String roamingNo;
+    private Integer promoCodeId;
 
     public ThyApplication() {
     }
@@ -88,6 +93,14 @@ public class ThyApplication {
 
     public void setMiddleName(String middleName) {
         this.middleName = middleName;
+    }
+
+    public String getPin() {
+        return pin;
+    }
+
+    public void setPin(String pin) {
+        this.pin = pin;
     }
 
     public String getGender() {
@@ -290,6 +303,30 @@ public class ThyApplication {
         this.ipAddress = ipAddress;
     }
 
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public String getRoamingNo() {
+        return roamingNo;
+    }
+
+    public void setRoamingNo(String roamingNo) {
+        this.roamingNo = roamingNo;
+    }
+
+    public Integer getPromoCodeId() {
+        return promoCodeId;
+    }
+
+    public void setPromoCodeId(Integer promoCodeId) {
+        this.promoCodeId = promoCodeId;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
@@ -299,9 +336,9 @@ public class ThyApplication {
                 .append("name", name)
                 .append("surname", surname)
                 .append("middleName", middleName)
+                .append("pin", pin)
                 .append("gender", gender)
                 .append("birthDate", birthDate)
-                .append("fileUploads", fileUploads)
                 .append("registrationCity", registrationCity)
                 .append("registrationAddress", registrationAddress)
                 .append("domicileCity", domicileCity)
@@ -324,6 +361,9 @@ public class ThyApplication {
                 .append("branch", branch)
                 .append("amountToPay", amountToPay)
                 .append("ipAddress", ipAddress)
+                .append("paymentMethod", paymentMethod)
+                .append("roamingNo", roamingNo)
+                .append("promoCodeId", promoCodeId)
                 .toString();
     }
 }

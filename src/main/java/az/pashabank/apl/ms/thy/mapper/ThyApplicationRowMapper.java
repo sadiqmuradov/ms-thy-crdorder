@@ -25,6 +25,7 @@ public class ThyApplicationRowMapper implements RowMapper<ThyApplication> {
         app.setName(rs.getString("name"));
         app.setSurname(rs.getString("surname"));
         app.setMiddleName(rs.getString("patronymic"));
+        app.setPin(rs.getString("pin"));
         app.setGender(rs.getString("gender"));
         app.setBirthDate(rs.getString("birth_date"));
         app.setRegistrationCity(rs.getString("registration_city"));
@@ -47,6 +48,9 @@ public class ThyApplicationRowMapper implements RowMapper<ThyApplication> {
         app.setPeriod(rs.getInt("period"));
         app.setBranch(new Branch(rs.getString("branch_code"), rs.getString("branch_name")));
         app.setAmountToPay(rs.getBigDecimal("amount_to_pay"));
+        app.setPaymentMethod(rs.getString("payment_method"));
+        app.setRoamingNo(rs.getString("roaming_number"));
+        app.setPromoCodeId(rs.getInt("promo_code_id"));
 
         return app;
     }

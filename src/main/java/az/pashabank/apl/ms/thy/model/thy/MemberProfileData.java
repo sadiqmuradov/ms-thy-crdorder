@@ -1,7 +1,6 @@
 package az.pashabank.apl.ms.thy.model.thy;
 
 import az.pashabank.apl.ms.thy.model.MobilePhone;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class MemberProfileData {
 
@@ -22,11 +21,12 @@ public class MemberProfileData {
     private String countryCode;
     private String cityCode;
     private String address;
+    private String identityCardNo;
 
     public MemberProfileData() {
     }
 
-    public MemberProfileData(String dateOfBirthDay, String dateOfBirthMonth, String dateOfBirthYear, String emailAddress, MobilePhone mobilePhone, String name, String surname, String nationality, String securityQuestion, String securityAnswer, String pinNumber, String corrspondanceLanguage, String gender, String countryCode, String cityCode, String address) {
+    public MemberProfileData(String dateOfBirthDay, String dateOfBirthMonth, String dateOfBirthYear, String emailAddress, MobilePhone mobilePhone, String name, String surname, String nationality, String securityQuestion, String securityAnswer, String pinNumber, String corrspondanceLanguage, String gender, String countryCode, String cityCode, String address, String identityCardNo) {
         this.memberId = memberId;
         this.dateOfBirthDay = dateOfBirthDay;
         this.dateOfBirthMonth = dateOfBirthMonth;
@@ -44,6 +44,7 @@ public class MemberProfileData {
         this.countryCode = countryCode;
         this.cityCode = cityCode;
         this.address = address;
+        this.identityCardNo = identityCardNo;
     }
 
     public String getMemberId() {
@@ -182,27 +183,36 @@ public class MemberProfileData {
         this.address = address;
     }
 
+    public String getIdentityCardNo() {
+        return identityCardNo;
+    }
+
+    public void setIdentityCardNo(String identityCardNo) {
+        this.identityCardNo = identityCardNo;
+    }
+
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("memberId", memberId)
-                .append("dateOfBirthDay", dateOfBirthDay)
-                .append("dateOfBirthMonth", dateOfBirthMonth)
-                .append("dateOfBirthYear", dateOfBirthYear)
-                .append("emailAddress", emailAddress)
-                .append("mobilePhone", mobilePhone)
-                .append("name", name)
-                .append("surname", surname)
-                .append("nationality", nationality)
-                .append("securityQuestion", securityQuestion)
-                .append("securityAnswer", securityAnswer)
-                .append("pinNumber", pinNumber)
-                .append("corrspondanceLanguage", corrspondanceLanguage)
-                .append("gender", gender)
-                .append("countryCode", countryCode)
-                .append("cityCode", cityCode)
-                .append("address", address)
-                .toString();
+        return "MemberProfileData{" +
+                "memberId='" + memberId + '\'' +
+                ", dateOfBirthDay='" + dateOfBirthDay + '\'' +
+                ", dateOfBirthMonth='" + dateOfBirthMonth + '\'' +
+                ", dateOfBirthYear='" + dateOfBirthYear + '\'' +
+                ", emailAddress='" + emailAddress + '\'' +
+                ", mobilePhone=" + mobilePhone +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", nationality='" + nationality + '\'' +
+                ", securityQuestion='" + securityQuestion + '\'' +
+                ", securityAnswer='" + securityAnswer + '\'' +
+                ", pinNumber='" + pinNumber + '\'' +
+                ", corrspondanceLanguage='" + corrspondanceLanguage + '\'' +
+                ", gender='" + gender + '\'' +
+                ", countryCode='" + countryCode + '\'' +
+                ", cityCode='" + cityCode + '\'' +
+                ", address='" + address + '\'' +
+                ", identityCardNo='" + identityCardNo + '\'' +
+                '}';
     }
 
 }

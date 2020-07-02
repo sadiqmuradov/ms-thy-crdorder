@@ -2,13 +2,18 @@ package az.pashabank.apl.ms.thy.task;
 
 import az.pashabank.apl.ms.thy.constants.ResultCode;
 import az.pashabank.apl.ms.thy.dao.MainDao;
-import az.pashabank.apl.ms.thy.logger.UFCLogger;
-import az.pashabank.apl.ms.thy.model.*;
+import az.pashabank.apl.ms.thy.logger.MainLogger;
+import az.pashabank.apl.ms.thy.model.CRSQuestion;
+import az.pashabank.apl.ms.thy.model.OperationResponse;
+import az.pashabank.apl.ms.thy.model.Payment;
+import az.pashabank.apl.ms.thy.model.ThyApplication;
+import az.pashabank.apl.ms.thy.model.UploadWrapper;
 import az.pashabank.apl.ms.thy.service.MailService;
-import az.pashabank.apl.ms.thy.validator.MainValidator;
+import az.pashabank.apl.ms.thy.validator.CardValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
@@ -18,7 +23,7 @@ import java.util.List;
 @Service
 public class OtrsScheduler {
 
-    private static final UFCLogger LOGGER = UFCLogger.getLogger(OtrsScheduler.class);
+    private static final MainLogger LOGGER = MainLogger.getLogger(OtrsScheduler.class);
 
     @Autowired
     private MainDao mainDao;
@@ -27,9 +32,9 @@ public class OtrsScheduler {
     private MailService mailService;
 
     @Autowired
-    private MainValidator validator;
+    private CardValidator validator;
 
-//    @Scheduled(fixedDelayString = "${schedule.fixedDelay.in.milliseconds.otrs}") // must be 180000
+    @Scheduled(fixedDelayString = "${schedule.fixedDelay.in.milliseconds.otrs}") // must be 180000
     public void sendCardOrderMails() {
         try {
             List<ThyApplication> unsentApplications = mainDao.getUnsentApplications();
@@ -54,12 +59,12 @@ public class OtrsScheduler {
             addFileUploads(app, resources);
             app.setCardProduct(mainDao.getCardProductById(app.getCardProduct().getId()));
             List<CRSQuestion> crsQuestions = mainDao.getCRSQuestions("en");
-            Payment payment = mainDao.getPaymentByAppId(app.getId());
+            Payment payment = mainDao.getPaymentByAppId(app.getId(), "CARD");
 
             OperationResponse operationResponse = mailService.sendEmail(app, crsQuestions, payment, emails, resources);
 
             if (operationResponse.getCode() == ResultCode.OK) {
-                mainDao.markApplicationAsSent(app.getId());
+                mainDao.markApplicationAsSent(app.getId(), "CARD");
                 validator.deleteWrapperFiles(app.getFileUploads(), operationResponse);
             }
         } catch (Exception e) {

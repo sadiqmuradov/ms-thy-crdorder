@@ -1,10 +1,10 @@
-package az.pashabank.apl.ms.thy.model.thy;
+package az.pashabank.apl.ms.thy.model;
 
-import az.pashabank.apl.ms.thy.model.CRSAnswer;
-import az.pashabank.apl.ms.thy.model.UploadWrapper;
+import az.pashabank.apl.ms.thy.constants.PaymentMethod;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class CreateNewCustomerOrderRequest {
 
@@ -27,13 +27,6 @@ public class CreateNewCustomerOrderRequest {
     private String position;
     private boolean urgent;
     private String tkNo;
-    private String passportName;
-    private String passportSurname;
-    private String correspondenceLanguage;
-    private String securityQuestion;
-    private String securityAnswer;
-    private String password;
-    private String repeatPassword;
     private List<CRSAnswer> crsAnswers;
     private Integer acceptedTerms;
     private Integer acceptedGsa;
@@ -44,6 +37,9 @@ public class CreateNewCustomerOrderRequest {
     private String branchName;
     private BigDecimal amountToPay;
     private String ipAddress;
+    private PaymentMethod paymentMethod;
+    private Integer couponId;
+    private String roamingNo;
 
     public CreateNewCustomerOrderRequest() {
     }
@@ -184,7 +180,7 @@ public class CreateNewCustomerOrderRequest {
         this.position = position;
     }
 
-    public boolean getUrgent() {
+    public boolean isUrgent() {
         return urgent;
     }
 
@@ -198,62 +194,6 @@ public class CreateNewCustomerOrderRequest {
 
     public void setTkNo(String tkNo) {
         this.tkNo = tkNo;
-    }
-
-    public String getPassportName() {
-        return passportName;
-    }
-
-    public void setPassportName(String passportName) {
-        this.passportName = passportName;
-    }
-
-    public String getPassportSurname() {
-        return passportSurname;
-    }
-
-    public void setPassportSurname(String passportSurname) {
-        this.passportSurname = passportSurname;
-    }
-
-    public String getCorrespondenceLanguage() {
-        return correspondenceLanguage;
-    }
-
-    public void setCorrespondenceLanguage(String correspondenceLanguage) {
-        this.correspondenceLanguage = correspondenceLanguage;
-    }
-
-    public String getSecurityQuestion() {
-        return securityQuestion;
-    }
-
-    public void setSecurityQuestion(String securityQuestion) {
-        this.securityQuestion = securityQuestion;
-    }
-
-    public String getSecurityAnswer() {
-        return securityAnswer;
-    }
-
-    public void setSecurityAnswer(String securityAnswer) {
-        this.securityAnswer = securityAnswer;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getRepeatPassword() {
-        return repeatPassword;
-    }
-
-    public void setRepeatPassword(String repeatPassword) {
-        this.repeatPassword = repeatPassword;
     }
 
     public List<CRSAnswer> getCrsAnswers() {
@@ -336,45 +276,64 @@ public class CreateNewCustomerOrderRequest {
         this.ipAddress = ipAddress;
     }
 
-    @Override
-    public String toString() {
-        return "CreateNewCustomerOrderRequest{" +
-                "residency='" + residency + '\'' +
-                ", nationality='" + nationality + '\'' +
-                ", name='" + name + '\'' +
-                ", surname='" + surname + '\'' +
-                ", middleName='" + middleName + '\'' +
-                ", gender='" + gender + '\'' +
-                ", birthDate='" + birthDate + '\'' +
-                ", registrationCity='" + registrationCity + '\'' +
-                ", registrationAddress='" + registrationAddress + '\'' +
-                ", domicileCity='" + domicileCity + '\'' +
-                ", domicileAddress='" + domicileAddress + '\'' +
-                ", mobileNo='" + mobileNo + '\'' +
-                ", email='" + email + '\'' +
-                ", secretCode='" + secretCode + '\'' +
-                ", workplace='" + workplace + '\'' +
-                ", position='" + position + '\'' +
-                ", urgent='" + urgent + '\'' +
-                ", tkNo='" + tkNo + '\'' +
-                ", passportName='" + passportName + '\'' +
-                ", passportSurname='" + passportSurname + '\'' +
-                ", correspondenceLanguage='" + correspondenceLanguage + '\'' +
-                ", securityQuestion='" + securityQuestion + '\'' +
-                ", securityAnswer='" + securityAnswer + '\'' +
-                ", password='" + password + '\'' +
-                ", repeatPassword='" + repeatPassword + '\'' +
-                ", crsAnswers=" + crsAnswers +
-                ", acceptedTerms=" + acceptedTerms +
-                ", acceptedGsa=" + acceptedGsa +
-                ", currency='" + currency + '\'' +
-                ", cardType=" + cardType +
-                ", period=" + period +
-                ", branchCode='" + branchCode + '\'' +
-                ", branchName='" + branchName + '\'' +
-                ", amountToPay=" + amountToPay +
-                ", ipAddress='" + ipAddress + '\'' +
-                '}';
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
     }
 
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public Integer getCouponId() {
+        return couponId;
+    }
+
+    public void setCouponId(Integer couponId) {
+        this.couponId = couponId;
+    }
+
+    public String getRoamingNo() {
+        return roamingNo;
+    }
+
+    public void setRoamingNo(String roamingNo) {
+        this.roamingNo = roamingNo;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", CreateNewCustomerOrderRequest.class.getSimpleName() + "[", "]")
+                .add("residency='" + residency + "'")
+                .add("nationality='" + nationality + "'")
+                .add("name='" + name + "'")
+                .add("surname='" + surname + "'")
+                .add("middleName='" + middleName + "'")
+                .add("gender='" + gender + "'")
+                .add("birthDate='" + birthDate + "'")
+                .add("registrationCity='" + registrationCity + "'")
+                .add("registrationAddress='" + registrationAddress + "'")
+                .add("domicileCity='" + domicileCity + "'")
+                .add("domicileAddress='" + domicileAddress + "'")
+                .add("mobileNo='" + mobileNo + "'")
+                .add("email='" + email + "'")
+                .add("secretCode='" + secretCode + "'")
+                .add("workplace='" + workplace + "'")
+                .add("position='" + position + "'")
+                .add("urgent=" + urgent)
+                .add("tkNo='" + tkNo + "'")
+                .add("crsAnswers=" + crsAnswers)
+                .add("acceptedTerms=" + acceptedTerms)
+                .add("acceptedGsa=" + acceptedGsa)
+                .add("currency='" + currency + "'")
+                .add("cardType=" + cardType)
+                .add("period=" + period)
+                .add("branchCode='" + branchCode + "'")
+                .add("branchName='" + branchName + "'")
+                .add("amountToPay=" + amountToPay)
+                .add("ipAddress='" + ipAddress + "'")
+                .add("paymentMethod=" + paymentMethod)
+                .add("couponId=" + couponId)
+                .add("roamingNo='" + roamingNo + "'")
+                .toString();
+    }
 }
