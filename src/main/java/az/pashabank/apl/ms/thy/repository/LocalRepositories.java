@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 @AllArgsConstructor
 @NoArgsConstructor
 @Repository
-public class Repositories {
+public class LocalRepositories {
 
     @Autowired
     private ThyApplicationRepo thyApplicationRepo;

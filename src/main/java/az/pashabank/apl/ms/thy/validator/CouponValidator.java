@@ -1,17 +1,14 @@
 package az.pashabank.apl.ms.thy.validator;
 
 import az.pashabank.apl.ms.thy.constants.CouponType;
-import az.pashabank.apl.ms.thy.model.CardProductRequest;
-import az.pashabank.apl.ms.thy.model.CheckCouponPaymentStatusRequest;
-import az.pashabank.apl.ms.thy.model.CreateNewCouponOrder1Request;
-import az.pashabank.apl.ms.thy.model.CreateNewCouponOrder2Request;
-import az.pashabank.apl.ms.thy.model.CreateNewCouponOrder3Request;
-import az.pashabank.apl.ms.thy.model.OperationResponse;
+import az.pashabank.apl.ms.thy.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
+@Component
 public class CouponValidator {
 
     private static final String WRONG_REQUEST = "WRONG REQUEST: Mandatory request parameter is null";

@@ -3,17 +3,12 @@ package az.pashabank.apl.ms.thy.task;
 import az.pashabank.apl.ms.thy.constants.ResultCode;
 import az.pashabank.apl.ms.thy.dao.MainDao;
 import az.pashabank.apl.ms.thy.logger.MainLogger;
-import az.pashabank.apl.ms.thy.model.CRSQuestion;
-import az.pashabank.apl.ms.thy.model.OperationResponse;
-import az.pashabank.apl.ms.thy.model.Payment;
-import az.pashabank.apl.ms.thy.model.ThyApplication;
-import az.pashabank.apl.ms.thy.model.UploadWrapper;
+import az.pashabank.apl.ms.thy.model.*;
 import az.pashabank.apl.ms.thy.service.MailService;
 import az.pashabank.apl.ms.thy.validator.CardValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
@@ -34,7 +29,7 @@ public class OtrsScheduler {
     @Autowired
     private CardValidator validator;
 
-    @Scheduled(fixedDelayString = "${schedule.fixedDelay.in.milliseconds.otrs}") // must be 180000
+//    @Scheduled(fixedDelayString = "${schedule.fixedDelay.in.milliseconds.otrs}") // must be 180000
     public void sendCardOrderMails() {
         try {
             List<ThyApplication> unsentApplications = mainDao.getUnsentApplications();

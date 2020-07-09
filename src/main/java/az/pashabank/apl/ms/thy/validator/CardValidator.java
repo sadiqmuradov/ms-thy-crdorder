@@ -3,21 +3,13 @@ package az.pashabank.apl.ms.thy.validator;
 import az.pashabank.apl.ms.thy.constants.Regex;
 import az.pashabank.apl.ms.thy.dao.MainDao;
 import az.pashabank.apl.ms.thy.logger.MainLogger;
-import az.pashabank.apl.ms.thy.model.Branch;
-import az.pashabank.apl.ms.thy.model.CRSAnswer;
-import az.pashabank.apl.ms.thy.model.CRSQuestion;
-import az.pashabank.apl.ms.thy.model.Card;
-import az.pashabank.apl.ms.thy.model.CheckOtpRequest;
-import az.pashabank.apl.ms.thy.model.CheckPaymentStatusRequest;
-import az.pashabank.apl.ms.thy.model.CreateNewCustomerOrderRequest;
-import az.pashabank.apl.ms.thy.model.OperationResponse;
-import az.pashabank.apl.ms.thy.model.SendOtpRequest;
-import az.pashabank.apl.ms.thy.model.UploadWrapper;
+import az.pashabank.apl.ms.thy.model.*;
 import az.pashabank.apl.ms.thy.model.thy.RegisterCustomerInThyRequest;
 import az.pashabank.apl.ms.thy.utils.ContentTypeUtils;
 import az.pashabank.apl.ms.thy.utils.Crypto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -27,6 +19,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
+@Component
 public class CardValidator {
 
     private static final MainLogger LOGGER = MainLogger.getLogger(CardValidator.class);

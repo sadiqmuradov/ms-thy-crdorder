@@ -148,9 +148,12 @@ spring:
     hikari:
       minimum-idle: 1
       maximum-pool-size: 20
-    url: jdbc:oracle:thin:@//192.168.110.61:1521/thycardorder
-    username: thycardorderusr
-    password: k#1SjzD05*44tPD3mp5
+#    url: jdbc:oracle:thin:@//192.168.110.61:1521/thycardorder
+#    username: thycardorderusr
+#    password: k#1SjzD05*44tPD3mp5
+    url: jdbc:oracle:thin:@//localhost:1522/ORCLPDB1.localdomain
+    username: sadiq
+    password: sadiq
   jpa:
     open-in-view: false
     hibernate:

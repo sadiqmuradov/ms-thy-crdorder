@@ -6,7 +6,6 @@ import az.pashabank.apl.ms.thy.logger.MainLogger;
 import az.pashabank.apl.ms.thy.model.OperationResponse;
 import az.pashabank.apl.ms.thy.model.Payment;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +18,7 @@ public class FlexScheduler {
     @Autowired
     private MainDao mainDao;
     
-    @Scheduled(fixedDelayString = "${schedule.fixedDelay.in.milliseconds.flex}") // must be 120000
+//    @Scheduled(fixedDelayString = "${schedule.fixedDelay.in.milliseconds.flex}") // must be 120000
     public void makeFlexPayments() {
         try {
             List<Payment> unpaidFlexPayments = mainDao.getUnpaidFlexPayments("CARD");

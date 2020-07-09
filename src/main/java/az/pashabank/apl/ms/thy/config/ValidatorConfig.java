@@ -1,12 +1,6 @@
 package az.pashabank.apl.ms.thy.config;
 
-import az.pashabank.apl.ms.thy.validator.CardStepsValidator;
-import az.pashabank.apl.ms.thy.validator.CardValidator;
-import az.pashabank.apl.ms.thy.validator.CouponValidator;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
+/*@Configuration
 public class ValidatorConfig {
 
     @Bean
@@ -24,4 +18,4 @@ public class ValidatorConfig {
         return new CardStepsValidator();
     }
 
-}
+}*/

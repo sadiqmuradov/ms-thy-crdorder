@@ -3,24 +3,9 @@ package az.pashabank.apl.ms.thy.validator;
 import az.pashabank.apl.ms.thy.constants.Regex;
 import az.pashabank.apl.ms.thy.dao.CardStepsDao;
 import az.pashabank.apl.ms.thy.dao.MainDao;
-import az.pashabank.apl.ms.thy.entity.BranchEntity;
-import az.pashabank.apl.ms.thy.entity.CRSAnswerEntity;
-import az.pashabank.apl.ms.thy.entity.CRSQuestionEntity;
-import az.pashabank.apl.ms.thy.entity.CardPriceEntity;
-import az.pashabank.apl.ms.thy.entity.CardProductEntity;
-import az.pashabank.apl.ms.thy.entity.CouponCodeEntity;
-import az.pashabank.apl.ms.thy.entity.NetGrossIncomeEntity;
-import az.pashabank.apl.ms.thy.entity.SourceOfIncomeEntity;
-import az.pashabank.apl.ms.thy.entity.UploadWrapperEntity;
+import az.pashabank.apl.ms.thy.entity.*;
 import az.pashabank.apl.ms.thy.logger.MainLogger;
-import az.pashabank.apl.ms.thy.model.CRSAnswer;
-import az.pashabank.apl.ms.thy.model.CreateNewCardOrderStep1Request;
-import az.pashabank.apl.ms.thy.model.CreateNewCardOrderStep2Request;
-import az.pashabank.apl.ms.thy.model.CreateNewCardOrderStep3Request;
-import az.pashabank.apl.ms.thy.model.GetPromoCodeRequest;
-import az.pashabank.apl.ms.thy.model.OperationResponse;
-import az.pashabank.apl.ms.thy.model.UploadFilesRequest;
-import az.pashabank.apl.ms.thy.model.UploadWrapper;
+import az.pashabank.apl.ms.thy.model.*;
 import az.pashabank.apl.ms.thy.model.thy.CheckTkRequest;
 import az.pashabank.apl.ms.thy.model.thy.CheckTkRestResponse;
 import az.pashabank.apl.ms.thy.model.thy.MemberData;
@@ -29,6 +14,7 @@ import az.pashabank.apl.ms.thy.proxy.ThyServiceProxy;
 import az.pashabank.apl.ms.thy.service.LocalMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+@Component
 public class CardStepsValidator {
 
     private static final MainLogger LOGGER = MainLogger.getLogger(CardStepsValidator.class);

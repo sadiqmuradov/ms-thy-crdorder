@@ -1,16 +1,7 @@
 package az.pashabank.apl.ms.thy.dao;
 
-import az.pashabank.apl.ms.thy.entity.BranchEntity;
-import az.pashabank.apl.ms.thy.entity.CRSQuestionEntity;
-import az.pashabank.apl.ms.thy.entity.CardPriceEntity;
-import az.pashabank.apl.ms.thy.entity.CardProductEntity;
-import az.pashabank.apl.ms.thy.entity.CouponCodeEntity;
-import az.pashabank.apl.ms.thy.entity.NetGrossIncomeEntity;
-import az.pashabank.apl.ms.thy.entity.PromoCodeEntity;
-import az.pashabank.apl.ms.thy.entity.SourceOfIncomeEntity;
-import az.pashabank.apl.ms.thy.entity.ThyApplicationEntity;
-import az.pashabank.apl.ms.thy.entity.UploadWrapperEntity;
-import az.pashabank.apl.ms.thy.repository.Repositories;
+import az.pashabank.apl.ms.thy.entity.*;
+import az.pashabank.apl.ms.thy.repository.LocalRepositories;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -23,7 +14,7 @@ import java.util.List;
 public class CardStepsDao {
 
     @Autowired
-    private Repositories repositories;
+    private LocalRepositories repositories;
 
     public ThyApplicationEntity saveApplication(ThyApplicationEntity appEntity) {
         return repositories.getThyApplicationRepo().save(appEntity);
